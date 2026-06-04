@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>雪烬电竞后台</title>
+    <link rel="stylesheet" href="./css/admin.css" />
+  </head>
+  <body>
+    <section class="login-screen" id="loginScreen">
+      <form class="login-card" id="loginForm">
+        <span>XUEJIN ADMIN</span>
+        <h1>后台登录</h1>
+        <p>请输入后台密码后进入内容管理。</p>
+        <label class="field">
+          后台密码
+          <input id="loginPassword" type="password" placeholder="输入后台密码" autocomplete="current-password" />
+        </label>
+        <button type="submit" class="primary">登录后台</button>
+        <div class="status" id="loginStatus"></div>
+      </form>
+    </section>
+
+    <main class="admin" id="adminApp" hidden>
+      <header class="admin-head">
+        <div>
+          <span>XUEJIN ADMIN</span>
+          <h1>网站内容后台</h1>
+          <p>可视化修改前台所有展示内容，保存后前台会从数据库读取最新数据。</p>
+        </div>
+        <div class="button-row">
+          <a href="/" target="_blank" rel="noopener">打开前台</a>
+          <a href="./logs.html" target="_blank" rel="noopener">查看日志</a>
+          <button id="logoutBtn" type="button">退出登录</button>
+        </div>
+      </header>
+
+      <section class="toolbar">
+        <input id="tokenInput" type="hidden" />
+        <button id="loadBtn" type="button">重新读取</button>
+        <button id="saveBtn" type="button" class="primary">保存数据</button>
+        <div class="status" id="status">正在读取内容...</div>
+      </section>
+
+      <nav class="admin-tabs" id="adminTabs" aria-label="后台栏目">
+        <button type="button" class="active" data-panel="basic">基础内容</button>
+        <button type="button" data-panel="banners">轮播</button>
+        <button type="button" data-panel="announcement">公告</button>
+        <button type="button" data-panel="prices">价目表</button>
+        <button type="button" data-panel="companions">陪陪音卡</button>
+        <button type="button" data-panel="games">趣味单游戏</button>
+        <button type="button" data-panel="rooms">房间管理</button>
+        <button type="button" data-panel="rights">老板须知</button>
+      </nav>
+
+      <section class="panel active" data-panel-view="basic">
+        <div class="panel-title">
+          <h2>基础内容</h2>
+          <p>修改首页品牌、联系方式和关于页面。</p>
+        </div>
+        <div class="grid">
+          <label class="field">
+            网站名称
+            <input id="brandNameInput" type="text" />
+          </label>
+          <label class="field">
+            首页口号
+            <input id="brandTaglineInput" type="text" />
+          </label>
+          <label class="field full">
+            头像/Logo 路径
+            <input id="brandLogoInput" type="text" placeholder="./assets/xuejin-logo.jpg" />
+          </label>
+          <label class="field">
+            营业时间
+            <input id="contactHoursInput" type="text" />
+          </label>
+          <label class="field">
+            联系渠道
+            <input id="contactChannelInput" type="text" />
+          </label>
+          <label class="field full">
+            底部文字
+            <input id="footerTextInput" type="text" />
+          </label>
+        </div>
+        <label class="field full">
+          关于页面内容
+          <textarea id="aboutInput" rows="8"></textarea>
+        </label>
+      </section>
+
+      <section class="panel" data-panel-view="banners">
+        <div class="panel-title">
+          <h2>首页轮播</h2>
+          <button type="button" data-add="banner">添加轮播</button>
+        </div>
+        <div class="list" id="bannersList"></div>
+      </section>
+
+      <section class="panel" data-panel-view="announcement">
+        <div class="panel-title">
+          <h2>公告</h2>
+          <button type="button" data-add="announcement">添加公告</button>
+        </div>
+        <div class="list" id="announcementsList"></div>
+      </section>
+
+      <section class="panel" data-panel-view="prices">
+        <div class="panel-title">
+          <h2>价目表</h2>
+          <div class="button-row">
+            <button type="button" data-add="category">添加分类</button>
+            <button type="button" data-add="price">添加项目</button>
+          </div>
+        </div>
+        <h3>分类</h3>
+        <div class="list compact" id="categoriesList"></div>
+        <h3>项目</h3>
+        <div class="list" id="pricesList"></div>
+      </section>
+
+      <section class="panel" data-panel-view="companions">
+        <div class="panel-title">
+          <h2>陪陪音卡</h2>
+          <button type="button" data-add="companion">添加音卡</button>
+        </div>
+        <div class="list" id="companionsList"></div>
+      </section>
+
+      <section class="panel" data-panel-view="games">
+        <div class="panel-title">
+          <h2>趣味单游戏区</h2>
+          <button type="button" data-add="game">添加游戏入口</button>
+        </div>
+        <div class="list" id="gamesList"></div>
+      </section>
+
+      <section class="panel" data-panel-view="rooms">
+        <div class="panel-title">
+          <div>
+            <h2>房间管理</h2>
+            <p>选择一个已经配置页面链接的趣味单游戏，创建后会生成房间号。</p>
+          </div>
+          <button id="refreshRoomsBtn" type="button">刷新房间</button>
+        </div>
+        <div class="room-create">
+          <label class="field">
+            选择趣味单内容
+            <select id="roomGameSelect"></select>
+          </label>
+          <button id="createRoomBtn" type="button" class="primary">创建房间</button>
+        </div>
+        <div class="created-room" id="createdRoom" hidden></div>
+        <h3>正在进行的房间</h3>
+        <div class="list" id="activeRoomsList"></div>
+        <h3>已经结束的房间</h3>
+        <div class="list" id="endedRoomsList"></div>
+      </section>
+
+      <section class="panel" data-panel-view="rights">
+        <div class="panel-title">
+          <h2>老板须知</h2>
+          <button type="button" data-add="right">添加须知</button>
+        </div>
+        <div class="list compact" id="rightsList"></div>
+      </section>
+    </main>
+
+    <script type="module" src="./js/admin.js"></script>
+  </body>
+</html>

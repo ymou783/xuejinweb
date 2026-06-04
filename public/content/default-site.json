@@ -1,0 +1,69 @@
+{
+  "brand": {
+    "siteName": "雪烬电竞",
+    "tagline": "霜火集结，开局即燃",
+    "logoUrl": "./assets/xuejin-logo.jpg",
+    "contactHours": "营业时间: 待填写",
+    "contactChannel": "联系渠道: 待填写",
+    "footerText": "雪烬电竞 · 独立门户"
+  },
+  "banners": [
+    {
+      "kicker": "XUEJIN CLUB",
+      "title": "雪烬电竞",
+      "desc": "手游与端游服务入口已搭建，内容可按你的实际业务继续替换。",
+      "tag": "门户首页"
+    },
+    {
+      "kicker": "SERVICE BOARD",
+      "title": "价目与音卡集中展示",
+      "desc": "价目表已拆分为手游和端游，试玩区暂时保留入口。",
+      "tag": "待填充"
+    }
+  ],
+  "announcements": [
+    {
+      "title": "雪烬电竞门户内容占位",
+      "date": "2026-06-04",
+      "summary": "当前页面已改为雪烬电竞独立风格，栏目和交互保留，具体业务内容后续可以整体替换。",
+      "imageUrl": "./assets/xuejin-logo.jpg",
+      "details": [
+        { "text": "这里是公告详情占位。后续可以放活动说明、接单规则、福利说明或更新通知。" },
+        { "text": "页面已经去掉原站主要宣传图和栏目素材，保留的是可继续填充的结构。", "strong": true },
+        { "text": "价目表分为手游与端游；互动试玩区只保留入口，不包含游戏实现。" }
+      ]
+    }
+  ],
+  "categories": [
+    { "id": "mobile", "name": "手游", "color": "#53d7ff" },
+    { "id": "pc", "name": "端游", "color": "#a9ffcb" }
+  ],
+  "prices": [
+    { "cat": "mobile", "name": "手游套餐 A", "price": "待定", "guarantee": "内容待填充", "featured": true, "imageUrl": "", "tags": ["可替换", "手游"], "note": "这里放手游项目说明、价格、保底或规则。" },
+    { "cat": "mobile", "name": "手游套餐 B", "price": "待定", "guarantee": "内容待填充", "imageUrl": "", "tags": ["可替换", "手游"], "note": "后续可替换为飞行棋、Bingo、物资类等实际服务。" },
+    { "cat": "mobile", "name": "手游趣味单", "price": "待定", "guarantee": "内容待填充", "imageUrl": "", "tags": ["趣味", "占位"], "note": "可添加玩法简介、结单条件和注意事项。" },
+    { "cat": "mobile", "name": "手游体验单", "price": "待定", "guarantee": "内容待填充", "imageUrl": "", "tags": ["体验", "占位"], "note": "可写每人限制、有效时间和适用游戏。" },
+    { "cat": "pc", "name": "端游套餐 A", "price": "待定", "guarantee": "内容待填充", "featured": true, "imageUrl": "", "tags": ["可替换", "端游"], "note": "这里放端游项目说明、价格、保底或规则。" },
+    { "cat": "pc", "name": "端游套餐 B", "price": "待定", "guarantee": "内容待填充", "imageUrl": "", "tags": ["可替换", "端游"], "note": "后续可替换为实际端游服务。" },
+    { "cat": "pc", "name": "端游陪玩项目", "price": "待定", "guarantee": "内容待填充", "imageUrl": "", "tags": ["陪玩", "占位"], "note": "可添加技术档位、时长、接单标准。" },
+    { "cat": "pc", "name": "端游托管项目", "price": "待定", "guarantee": "内容待填充", "imageUrl": "", "tags": ["托管", "占位"], "note": "可添加托管周期、验收方式和风险说明。" }
+  ],
+  "companions": [
+    { "name": "音卡位置 01", "gender": "♀", "category": "三角洲行动", "level": "资料待填", "orders": "-", "imageUrl": "", "videoUrl": "", "tags": ["待上传", "音频/视频"] },
+    { "name": "音卡位置 02", "gender": "♂", "category": "三角洲行动", "level": "资料待填", "orders": "-", "imageUrl": "", "videoUrl": "", "tags": ["待上传", "音频/视频"] }
+  ],
+  "games": [
+    { "name": "扫雷大作战", "desc": "试玩入口已预留，后续填充游戏内容。", "imageUrl": "", "href": "" },
+    { "name": "幸运转盘", "desc": "试玩入口已预留，后续填充游戏内容。", "imageUrl": "", "href": "" },
+    { "name": "Bingo", "desc": "试玩入口已预留，后续填充游戏内容。", "imageUrl": "", "href": "" },
+    { "name": "物资大师", "desc": "试玩入口已预留，后续填充游戏内容。", "imageUrl": "", "href": "" },
+    { "name": "物资满仓", "desc": "试玩入口已预留，后续填充游戏内容。", "imageUrl": "", "href": "" },
+    { "name": "物资天平", "desc": "摸红天平已接入，点击后在新标签页打开。", "imageUrl": "", "href": "./games/mo-hong-tianping.html" }
+  ],
+  "rights": [
+    { "title": "老板须知内容待上传", "body": "这里可以填写完整须知内容。", "imageUrl": "", "fileUrl": "" },
+    { "title": "接单规则内容待上传", "body": "这里可以填写完整接单规则。", "imageUrl": "", "fileUrl": "" },
+    { "title": "售后说明内容待上传", "body": "这里可以填写完整售后说明。", "imageUrl": "", "fileUrl": "" }
+  ],
+  "about": "雪烬电竞门户已完成独立视觉改版。\n当前内容为占位信息，后续可替换为团队介绍、服务范围、联系方式和正式规则。"
+}

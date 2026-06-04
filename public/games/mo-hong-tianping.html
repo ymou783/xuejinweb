@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>摸红天平 - 雪烬电竞</title>
+    <link rel="stylesheet" href="../css/tianping.css" />
+    <link rel="stylesheet" href="../css/room-entry.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="topbar">
+        <div class="brand">
+          <img src="../assets/xuejin-logo.jpg" alt="雪烬电竞" />
+          <div>
+            <span>XUEJIN CLUB</span>
+            <strong>摸红天平</strong>
+          </div>
+        </div>
+        <div class="status-pill" id="statusPill">进行中</div>
+      </header>
+
+      <section class="room-bar" id="roomBar" hidden>
+        <strong>房间模式</strong>
+        <span id="roomCodeText"></span>
+        <span id="roomSyncText">正在连接...</span>
+      </section>
+
+      <section class="hero">
+        <h1>摸红天平</h1>
+        <p>基础保底从 4888W 开始。炸单会增加 60W，撤离成功会扣除输入金额。天平区域根据输入金额自动放到左右两侧，100W 计入右侧。天平条件和基础保底条件都达成后才结单。</p>
+      </section>
+
+      <section class="dashboard">
+        <article class="panel">
+          <div class="panel-head">
+            <strong>基础保底</strong>
+            <span>小于 0 时保底条件达成</span>
+          </div>
+          <div class="panel-body">
+            <div class="guarantee"><strong id="baseValue">4888</strong><span class="unit">W</span></div>
+            <div class="actions">
+              <button class="btn danger" id="bombBtn" type="button">炸单 +60W</button>
+              <label class="input-wrap">
+                <input id="withdrawInput" type="number" min="0" step="1" placeholder="撤离成功金额" />
+                <span>W</span>
+              </label>
+              <button class="btn success" id="withdrawBtn" type="button">撤离成功</button>
+            </div>
+            <div class="message" id="baseMessage"></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <strong>操作记录</strong>
+            <span id="saveStatus">本地待保存</span>
+          </div>
+          <div class="panel-body">
+            <div class="log" id="log"></div>
+            <div class="reset-row">
+              <button class="btn" id="resetBtn" type="button">重开一局</button>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <strong>天平游戏</strong>
+          <span>小于 100W 放左边，大于等于 100W 放右边；差值小于 50W 达成天平条件</span>
+        </div>
+        <div class="scale-area">
+          <div class="values">
+            <div class="value-box">
+              <span>左侧价值</span>
+              <strong id="leftValue">0</strong><span class="unit"> W</span>
+            </div>
+            <div class="value-box">
+              <span>右侧价值</span>
+              <strong id="rightValue">0</strong><span class="unit"> W</span>
+            </div>
+          </div>
+
+          <div class="scale-wrap">
+            <div class="scale" id="scale">
+              <div class="stand"></div>
+              <div class="base"></div>
+              <div class="beam"></div>
+              <div class="chain left"></div>
+              <div class="chain right"></div>
+              <div class="pan left"></div>
+              <div class="pan right"></div>
+            </div>
+          </div>
+
+          <div class="scale-input-row">
+            <label class="input-wrap">
+              <input id="scaleInput" type="number" min="0" step="1" placeholder="输入物资价值" />
+              <span>W</span>
+            </label>
+            <button class="btn" id="scaleBtn" type="button">放入天平</button>
+          </div>
+          <div class="entry-tools">
+            <button class="btn" id="undoScaleBtn" type="button">撤回上一步</button>
+            <button class="btn danger" id="clearScaleBtn" type="button">清空天平</button>
+          </div>
+          <div class="entries" id="entriesList"></div>
+          <div class="message" id="scaleMessage"></div>
+        </div>
+      </section>
+
+      <section class="settle-panel">
+        <button class="btn danger settle-btn" id="manualSettleBtn" type="button">结单</button>
+      </section>
+    </main>
+
+    <script type="module" src="../js/tianping.js"></script>
+    <script type="module" src="../js/room-entry.js"></script>
+  </body>
+</html>
