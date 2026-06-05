@@ -1,0 +1,14 @@
+{
+  "name": "xuejin-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "雪烬电竞门户与游戏后端",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "check": "node --check server/index.js && node --check server/db.js && node --check server/routes.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

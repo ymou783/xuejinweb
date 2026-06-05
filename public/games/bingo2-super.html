@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BINGO 2.0 超级版 - 雪烬电竞</title>
+    <link rel="stylesheet" href="../css/bingo2.css" />
+    <link rel="stylesheet" href="../css/room-entry.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="topbar">
+        <div class="brand">
+          <img src="../assets/xuejin-logo.jpg" alt="雪烬电竞" />
+          <div>
+            <span>XUEJIN CLUB</span>
+            <strong>BINGO 2.0 超级版</strong>
+          </div>
+        </div>
+        <div class="status-pill" id="statusPill">进行中</div>
+      </header>
+
+      <section class="room-bar" id="roomBar" hidden>
+        <strong>房间模式</strong>
+        <span id="roomCodeText"></span>
+        <span id="roomSyncText">正在连接...</span>
+      </section>
+
+      <section class="hero">
+        <div>
+          <span class="eyebrow">10 × 10 随机物资棋盘</span>
+          <h1>BINGO 2.0 超级版</h1>
+          <p>点击本局获得的物品格。横向、纵向或斜向连续达到所选规格，并且基础保底小于 0 后，可以正式结单。</p>
+        </div>
+        <div class="hero-stats">
+          <div><span>当前规格</span><strong id="currentSpecText">三连</strong></div>
+          <div><span>最长连续</span><strong><b id="longestLine">0</b> 格</strong></div>
+          <div><span>已点亮</span><strong><b id="markedCount">0</b> / 100</strong></div>
+        </div>
+      </section>
+
+      <section class="panel spec-panel">
+        <div class="panel-head">
+          <div>
+            <strong>选择规格</strong>
+            <span>开始操作后不可更换规格</span>
+          </div>
+          <span id="saveStatus">本地待保存</span>
+        </div>
+        <div class="spec-grid" id="specGrid"></div>
+      </section>
+
+      <section class="dashboard">
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <strong>基础保底</strong>
+              <span>小于 0 时保底条件达成</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="guarantee"><strong id="baseValue">2288</strong><span>W</span></div>
+            <div class="actions">
+              <button class="btn danger" id="bombBtn" type="button">炸单 +60W</button>
+              <label class="input-wrap">
+                <input id="withdrawInput" type="number" min="0" step="1" placeholder="撤离成功金额" />
+                <span>W</span>
+              </label>
+              <button class="btn success" id="withdrawBtn" type="button">撤离成功</button>
+            </div>
+            <div class="condition-row">
+              <span class="condition" id="lineCondition">连线未达成</span>
+              <span class="condition" id="baseCondition">保底未达成</span>
+            </div>
+            <div class="message" id="gameMessage"></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <strong>操作记录</strong>
+              <span>房间内所有操作实时共享</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="log" id="log"></div>
+            <div class="tool-row">
+              <button class="btn" id="undoBtn" type="button">撤回上一步</button>
+              <button class="btn danger" id="resetBtn" type="button">重开一局</button>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel board-panel">
+        <div class="panel-head">
+          <div>
+            <strong>随机棋盘</strong>
+            <span>57小红 · 24大红 · 14超大红 · 4房卡 · 1炫彩</span>
+          </div>
+          <span id="boardStatus">点击格子点亮</span>
+        </div>
+        <div class="board-search">
+          <form id="boardSearchForm">
+            <label class="search-input">
+              <span>搜索物品</span>
+              <input id="boardSearchInput" type="search" placeholder="输入物品名称，例如：显卡、房卡" autocomplete="off" />
+            </label>
+            <button class="btn" type="submit">搜索并定位</button>
+          </form>
+          <div class="search-message" id="boardSearchMessage" role="status" aria-live="polite"></div>
+        </div>
+        <div class="board-scroll">
+          <div class="bingo-board" id="bingoBoard" aria-label="BINGO 10乘10棋盘"></div>
+        </div>
+        <div class="legend">
+          <span><i class="small-red"></i>小红</span>
+          <span><i class="big-red"></i>大红</span>
+          <span><i class="super-red"></i>超大红</span>
+          <span><i class="room-card"></i>房卡</span>
+          <span><i class="colorful"></i>炫彩</span>
+        </div>
+      </section>
+
+      <section class="panel rules-panel">
+        <div class="panel-head"><strong>本局规则</strong></div>
+        <div class="rules">
+          <p>1. 任意横向、纵向或斜向连续达到所选规格，即达成连线条件；连线不能跨越棋盘边缘。</p>
+          <p>2. 同一种物品可能重复出现。每获得一次物品，只点亮一个对应格子；再次点击可取消。</p>
+          <p>3. 炸单增加 60W 基础保底；撤离成功扣除输入金额。基础保底必须小于 0。</p>
+          <p>4. 达成连线后棋盘立即锁定，保底仍可继续操作；两个条件都达成后确认结单。</p>
+          <p>5. 房卡、炫彩及特殊物品是否计入，由玩家按实际情况自行判断。</p>
+        </div>
+      </section>
+
+      <section class="settle-panel">
+        <button class="btn danger settle-btn" id="settleBtn" type="button" disabled>条件未达成</button>
+      </section>
+    </main>
+
+    <script type="module" src="../js/bingo2.js"></script>
+    <script type="module" src="../js/room-entry.js"></script>
+  </body>
+</html>

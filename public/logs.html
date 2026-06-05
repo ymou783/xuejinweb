@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>数据库日志 - 雪烬电竞后台</title>
+    <link rel="stylesheet" href="./css/admin.css" />
+  </head>
+  <body>
+    <section class="login-screen" id="loginScreen">
+      <form class="login-card" id="loginForm">
+        <span>XUEJIN LOGS</span>
+        <h1>日志查看</h1>
+        <p>请输入后台密码后查看数据库房间日志。</p>
+        <label class="field">
+          后台密码
+          <input id="loginPassword" type="password" placeholder="输入后台密码" autocomplete="current-password" />
+        </label>
+        <button type="submit" class="primary">登录查看</button>
+        <div class="status" id="loginStatus"></div>
+      </form>
+    </section>
+
+    <main class="admin" id="logsApp" hidden>
+      <header class="admin-head">
+        <div>
+          <span>XUEJIN LOGS</span>
+          <h1>数据库日志</h1>
+          <p>单独查看房间操作记录，已删除房间的日志也会保留在这里。</p>
+        </div>
+        <div class="button-row">
+          <a href="./admin.html">返回后台</a>
+          <a href="/" target="_blank" rel="noopener">打开前台</a>
+          <button id="logoutBtn" type="button">退出登录</button>
+        </div>
+      </header>
+
+      <section class="panel active">
+        <div class="panel-title">
+          <div>
+            <h2>房间列表</h2>
+            <p>点击房间查看对应操作日志。</p>
+          </div>
+          <button id="refreshLogsBtn" type="button">刷新日志</button>
+        </div>
+        <div class="grid">
+          <label class="field full">
+            搜索房间号或游戏名
+            <input id="roomSearchInput" type="text" placeholder="例如 XJ-7KQ9M 或 物资天平" />
+          </label>
+        </div>
+        <div class="log-layout">
+          <aside class="log-room-list" id="logRoomsList"></aside>
+          <section class="log-detail">
+            <div class="log-detail-head">
+              <h3 id="selectedRoomTitle">请选择房间</h3>
+              <span id="selectedRoomMeta"></span>
+            </div>
+            <div class="room-events large" id="roomEventsList">请选择左侧房间查看日志。</div>
+          </section>
+        </div>
+      </section>
+
+      <div class="status logs-status" id="status">等待登录。</div>
+    </main>
+
+    <script type="module" src="./js/logs.js"></script>
+  </body>
+</html>

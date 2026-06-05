@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="雪烬电竞俱乐部门户" />
+    <title>雪烬电竞</title>
+    <link rel="stylesheet" href="./css/main.css" />
+    <link rel="stylesheet" href="./css/room-entry.css" />
+  </head>
+  <body>
+    <div class="site">
+      <header class="hero">
+        <div class="carousel" aria-label="活动轮播">
+          <button class="carousel-btn prev" type="button" aria-label="上一张">‹</button>
+          <div class="carousel-stage" id="carouselStage"></div>
+          <div class="carousel-dots" id="carouselDots"></div>
+          <button class="carousel-btn next" type="button" aria-label="下一张">›</button>
+        </div>
+      </header>
+
+      <section class="brand">
+        <img class="brand-logo" id="brandLogo" src="./assets/xuejin-logo.jpg" alt="雪烬电竞" />
+        <div class="brand-copy">
+          <h1 id="brandName">雪烬电竞</h1>
+          <p id="brandTagline">霜火集结，开局即燃</p>
+        </div>
+      </section>
+
+      <nav class="tabs" aria-label="主导航">
+        <div class="tabs-scroll" id="tabs"></div>
+      </nav>
+
+      <main class="content" id="content"></main>
+
+      <section class="contact" aria-label="联系方式">
+        <div class="contact-item" id="contactHours">营业时间: 待填写</div>
+        <div class="contact-item" id="contactChannel">联系渠道: 待填写</div>
+      </section>
+
+      <footer class="footer" id="footerText">雪烬电竞 · 独立门户</footer>
+    </div>
+
+    <div class="modal" id="modal" hidden>
+      <div class="modal-backdrop" data-close-modal></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <button class="modal-close" type="button" data-close-modal aria-label="关闭">×</button>
+        <div id="modalContent"></div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script type="module" src="./js/app.js"></script>
+    <script type="module" src="./js/room-entry.js"></script>
+  </body>
+</html>

@@ -1,0 +1,81 @@
+.room-entry {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 90;
+  width: min(310px, calc(100vw - 28px));
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+  border: 1px solid rgba(115, 211, 255, 0.22);
+  border-radius: 8px;
+  background: rgba(8, 16, 25, 0.9);
+  color: #eef7fb;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(12px);
+}
+
+.room-entry form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.room-entry label {
+  display: grid;
+  gap: 5px;
+  color: #9fb4c2;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.room-entry input {
+  width: 100%;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid rgba(115, 211, 255, 0.22);
+  border-radius: 6px;
+  outline: none;
+  background: #09131b;
+  color: #eef7fb;
+  font: inherit;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.room-entry input:focus {
+  border-color: rgba(70, 217, 255, 0.62);
+  box-shadow: 0 0 0 3px rgba(70, 217, 255, 0.12);
+}
+
+.room-entry button {
+  align-self: end;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(70, 217, 255, 0.38);
+  border-radius: 6px;
+  background: rgba(70, 217, 255, 0.14);
+  color: #d7f8ff;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.room-entry-message {
+  min-height: 17px;
+  color: #9fb4c2;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.room-entry-message.error {
+  color: #ffd6df;
+}
+
+@media (max-width: 720px) {
+  .room-entry {
+    position: static;
+    width: min(100% - 28px, 520px);
+    margin: 12px auto;
+  }
+}
