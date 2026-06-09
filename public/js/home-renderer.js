@@ -29,7 +29,7 @@ export class HomeRenderer {
       contactChannel: data.brand?.contactChannel || "联系渠道: 待填写",
       footerText: data.brand?.footerText || "雪烬电竞 · 独立门户"
     };
-    this.state = { tab: "announcements", slide: 0, priceCat: "mobile", soundCat: "" };
+    this.state = { tab: "announcements", slide: 0, priceCat: "pc", soundCat: "" };
     this.content = document.querySelector("#content");
     this.modal = document.querySelector("#modal");
     this.modalContent = document.querySelector("#modalContent");
@@ -107,6 +107,7 @@ export class HomeRenderer {
       const btn = event.target.closest("[data-tab]");
       if (!btn) return;
       this.state.tab = btn.dataset.tab;
+      if (this.state.tab === "prices") this.state.priceCat = "pc";
       nav.querySelectorAll(".tab-btn").forEach((el) => el.classList.toggle("active", el.dataset.tab === this.state.tab));
       this.render();
     });
@@ -156,7 +157,7 @@ export class HomeRenderer {
         <section class="price-main">
           <div class="section-head">
             <span>${escapeHtml(current?.name || "价目表")}</span>
-            <p>这里展示${escapeHtml(current?.name || "")}项目，后续可直接替换成正式内容。</p>
+            <p>点击项目可查看完整价目海报和详细说明。</p>
           </div>
           <div class="price-grid">
             ${this.data.prices.filter((item) => item.cat === this.state.priceCat).map((item) => this.renderPriceCard(item)).join("")}

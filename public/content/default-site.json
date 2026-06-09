@@ -28,42 +28,573 @@
       "summary": "当前页面已改为雪烬电竞独立风格，栏目和交互保留，具体业务内容后续可以整体替换。",
       "imageUrl": "./assets/xuejin-logo.jpg",
       "details": [
-        { "text": "这里是公告详情占位。后续可以放活动说明、接单规则、福利说明或更新通知。" },
-        { "text": "页面已经去掉原站主要宣传图和栏目素材，保留的是可继续填充的结构。", "strong": true },
-        { "text": "价目表分为手游与端游；互动试玩区只保留入口，不包含游戏实现。" }
+        {
+          "text": "这里是公告详情占位。后续可以放活动说明、接单规则、福利说明或更新通知。"
+        },
+        {
+          "text": "页面已经去掉原站主要宣传图和栏目素材，保留的是可继续填充的结构。",
+          "strong": true
+        },
+        {
+          "text": "价目表分为手游与端游；互动试玩区只保留入口，不包含游戏实现。"
+        }
       ]
     }
   ],
   "categories": [
-    { "id": "mobile", "name": "手游", "color": "#53d7ff" },
-    { "id": "pc", "name": "端游", "color": "#a9ffcb" }
+    {
+      "id": "pc",
+      "name": "端游",
+      "color": "#a9ffcb"
+    },
+    {
+      "id": "mobile",
+      "name": "手游",
+      "color": "#53d7ff"
+    }
   ],
   "prices": [
-    { "cat": "mobile", "name": "手游套餐 A", "price": "待定", "guarantee": "内容待填充", "featured": true, "imageUrl": "", "tags": ["可替换", "手游"], "note": "这里放手游项目说明、价格、保底或规则。" },
-    { "cat": "mobile", "name": "手游套餐 B", "price": "待定", "guarantee": "内容待填充", "imageUrl": "", "tags": ["可替换", "手游"], "note": "后续可替换为飞行棋、Bingo、物资类等实际服务。" },
-    { "cat": "mobile", "name": "手游趣味单", "price": "待定", "guarantee": "内容待填充", "imageUrl": "", "tags": ["趣味", "占位"], "note": "可添加玩法简介、结单条件和注意事项。" },
-    { "cat": "mobile", "name": "手游体验单", "price": "待定", "guarantee": "内容待填充", "imageUrl": "", "tags": ["体验", "占位"], "note": "可写每人限制、有效时间和适用游戏。" },
-    { "cat": "pc", "name": "端游套餐 A", "price": "待定", "guarantee": "内容待填充", "featured": true, "imageUrl": "", "tags": ["可替换", "端游"], "note": "这里放端游项目说明、价格、保底或规则。" },
-    { "cat": "pc", "name": "端游套餐 B", "price": "待定", "guarantee": "内容待填充", "imageUrl": "", "tags": ["可替换", "端游"], "note": "后续可替换为实际端游服务。" },
-    { "cat": "pc", "name": "端游陪玩项目", "price": "待定", "guarantee": "内容待填充", "imageUrl": "", "tags": ["陪玩", "占位"], "note": "可添加技术档位、时长、接单标准。" },
-    { "cat": "pc", "name": "端游托管项目", "price": "待定", "guarantee": "内容待填充", "imageUrl": "", "tags": ["托管", "占位"], "note": "可添加托管周期、验收方式和风险说明。" }
+    {
+      "cat": "pc",
+      "name": "三角洲扫雷大作战",
+      "price": "888R 起",
+      "guarantee": "保底 2288W 起",
+      "featured": true,
+      "imageUrl": "/uploads/pc-price-01-mine-sweeper-battle.png",
+      "tags": [
+        "扫雷",
+        "棋盘",
+        "趣味单"
+      ],
+      "note": "4×4：888R/保2288W；6×6：2888R/保8888W；8×8：4888R/保15888W。找到全部普通雷后结算，撤离金额达到对应档位可挖雷。"
+    },
+    {
+      "cat": "pc",
+      "name": "让我在三角洲收菜",
+      "price": "1688R",
+      "guarantee": "保底 1亿",
+      "featured": true,
+      "imageUrl": "/uploads/pc-price-02-harvest-in-delta.png",
+      "tags": [
+        "收菜",
+        "连胜",
+        "春节活动"
+      ],
+      "note": "单局成功撤离且不低于1000W计入连胜收益。打手共有三次收菜机会，收菜可获得3倍收益；中途失败则重新计算。"
+    },
+    {
+      "cat": "pc",
+      "name": "趣味单合集 300以内",
+      "price": "228R 起",
+      "guarantee": "保底 888W 起",
+      "featured": true,
+      "imageUrl": "/uploads/pc-price-03-fun-orders-under-300.png",
+      "tags": [
+        "趣味单",
+        "清图",
+        "角色扮演"
+      ],
+      "note": "包含清图、神算子、牛角州、邪恶鸟兽兽、大佐单、宝宝单、沙色保险、小红冲冲冲、主人和小狗等玩法，详细规则见海报。"
+    },
+    {
+      "cat": "pc",
+      "name": "趣味单合集 300-500（一）",
+      "price": "388R 起",
+      "guarantee": "保底 1088W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-04-fun-orders-300-500-a.png",
+      "tags": [
+        "趣味单",
+        "猛攻",
+        "保险"
+      ],
+      "note": "包含反诈行动、龙息喷、板板当自强、无限续杯、爱吃大保险。不同玩法按摸出物品、击杀或成功撤离增加保底。"
+    },
+    {
+      "cat": "pc",
+      "name": "趣味单合集 300-500（二）",
+      "price": "388R 起",
+      "guarantee": "保底 888W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-05-fun-orders-300-500-b.png",
+      "tags": [
+        "趣味单",
+        "闯关",
+        "摸金"
+      ],
+      "note": "包含初级闯关、小金对对碰、金光普照、大家一起斗地主、猛攻单。按撤离、摸金组合或击杀条件结算。"
+    },
+    {
+      "cat": "pc",
+      "name": "趣味单合集 500-1000（一）",
+      "price": "588R 起",
+      "guarantee": "保底 888W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-06-fun-orders-500-1000-a.png",
+      "tags": [
+        "趣味单",
+        "骰子",
+        "大保险"
+      ],
+      "note": "包含幸运摇一摇、超级版我爱大保险、无敌10红单、自理更生单、满金满红单、超级翻倍。详细加保和结单条件见海报。"
+    },
+    {
+      "cat": "pc",
+      "name": "趣味单合集 500-1000（二）",
+      "price": "528R 起",
+      "guarantee": "保底 1088W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-07-fun-orders-500-1000-b.png",
+      "tags": [
+        "趣味单",
+        "清图",
+        "闯关"
+      ],
+      "note": "包含疯狂摸红、小金大转盘、哑巴护航、2连清图、简单闯关、五连爆仓、受死吧鸟兽兽等玩法。"
+    },
+    {
+      "cat": "pc",
+      "name": "趣味单合集 1000-2000（一）",
+      "price": "1488R 起",
+      "guarantee": "保底 3000W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-08-fun-orders-1000-2000-a.png",
+      "tags": [
+        "趣味单",
+        "收藏",
+        "扑克牌"
+      ],
+      "note": "包含悲伤消消乐、小红对对碰、AW你在哪、绝密扑克牌、块块归位、刷爆总裁卡。按收集、撤离和任务完成情况结算。"
+    },
+    {
+      "cat": "pc",
+      "name": "趣味单合集 1000-2000（二）",
+      "price": "1088R 起",
+      "guarantee": "保底 2888W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-09-fun-orders-1000-2000-b.png",
+      "tags": [
+        "趣味单",
+        "六套",
+        "四色卡"
+      ],
+      "note": "包含专打六套、天才少年、红包猎手、四色卡、绝密扑克牌、我们结婚吧。各玩法的收集和结单要求见海报。"
+    },
+    {
+      "cat": "pc",
+      "name": "趣味单合集 2000以上（一）",
+      "price": "3288R 起",
+      "guarantee": "保底 8000W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-10-fun-orders-over-2000-a.png",
+      "tags": [
+        "高额单",
+        "闯关",
+        "PK"
+      ],
+      "note": "包含一命通关和极限PK单。一命通关覆盖大坝、长弓、巴克什、航天和潮汐监狱；PK单按击杀、红色物资和额外BUFF计算。"
+    },
+    {
+      "cat": "pc",
+      "name": "趣味单合集 2000以上（二）",
+      "price": "2888R 起",
+      "guarantee": "保底 5000W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-11-fun-orders-over-2000-b.png",
+      "tags": [
+        "高额单",
+        "装机",
+        "收藏"
+      ],
+      "note": "包含步步高升、容器单、装机佬单。可按累计红色物资、不同容器带红或收集电脑配件完成任务。"
+    },
+    {
+      "cat": "pc",
+      "name": "趣味单合集 2000以上（三）",
+      "price": "2088R 起",
+      "guarantee": "保底 4888W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-12-fun-orders-over-2000-c.png",
+      "tags": [
+        "高额单",
+        "闯关",
+        "清图"
+      ],
+      "note": "包含苦难版闯关、摸红天平和3连清图。按指定地图任务、红色物资价值平衡或连续清图完成结单。"
+    },
+    {
+      "cat": "pc",
+      "name": "超级收藏家",
+      "price": "10888R",
+      "guarantee": "保底 1亿",
+      "featured": true,
+      "imageUrl": "/uploads/pc-price-13-super-collector.png",
+      "tags": [
+        "收藏家",
+        "七大类别",
+        "高额单"
+      ],
+      "note": "累计摸到电子产品、工业材料、工艺藏品、医疗道具、能源燃料、资料情报和家居物品七个类别中的红色收藏品后结单。"
+    },
+    {
+      "cat": "pc",
+      "name": "小小巨人定制版",
+      "price": "588R 起",
+      "guarantee": "初始 10滴血起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-14-little-giant-custom.jpg",
+      "tags": [
+        "小小巨人",
+        "血量玩法",
+        "定制"
+      ],
+      "note": "588R初始10滴血、上限20；1088R初始20、上限35；1688R初始30、上限50；2688R初始30且血量增加无上限。撤离和失败按海报规则增减血量。"
+    },
+    {
+      "cat": "pc",
+      "name": "小小巨人 绝密版2.0",
+      "price": "端388R / 手328R",
+      "guarantee": "保底 1288W",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-15-little-giant-secret-2.jpg",
+      "tags": [
+        "小小巨人",
+        "绝密",
+        "血量玩法"
+      ],
+      "note": "初始总血量10滴。端游按800W至2000W撤离档位扣5至9滴血；手游按600W至1500W档位扣4至7滴血。"
+    },
+    {
+      "cat": "pc",
+      "name": "三角洲综合价目表",
+      "price": "158R 起",
+      "guarantee": "保底 688W 起",
+      "featured": true,
+      "imageUrl": "/uploads/pc-price-16-delta-full-price-list.jpg",
+      "tags": [
+        "体验单",
+        "护航",
+        "陪玩"
+      ],
+      "note": "体验单158R/218R；低价单188R；基础护航199R起；陪玩男陪50R/小时起、女陪60R/小时起；跑刀80-1000W。完整须知见海报。"
+    },
+    {
+      "cat": "pc",
+      "name": "巧克力到",
+      "price": "328R 起",
+      "guarantee": "保底 1088W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-17-chocolate-arrival.jpg",
+      "tags": [
+        "巧克力",
+        "收集",
+        "趣味单"
+      ],
+      "note": "收集巧克力：1个328R/保1088W，2个588R/保2088W，4个1188R/保3888W，5个1688R/保4888W，7个3988R/保10000W。"
+    },
+    {
+      "cat": "pc",
+      "name": "BINGO 厨房大作战",
+      "price": "2888R 起",
+      "guarantee": "保底 3688W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-18-bingo-kitchen.jpg",
+      "tags": [
+        "BINGO",
+        "厨房",
+        "收集"
+      ],
+      "note": "任意一菜2888R/保3688W；任意两菜3888R/保8888W；任意三菜5888R/保1.28E；任意四菜8888R/保1.88E；全部菜品12888R/保2.28E。"
+    },
+    {
+      "cat": "pc",
+      "name": "九件套趣味单",
+      "price": "528R 起",
+      "guarantee": "保底 2188W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-19-nine-course-fun-order.jpg",
+      "tags": [
+        "九件套",
+        "收集",
+        "趣味单"
+      ],
+      "note": "三件套528R/保2188W，四件套1288R/保2888W，六件套3888R/保6888W，九件套15888R/保20888W。每套对应指定物资组合。"
+    },
+    {
+      "cat": "pc",
+      "name": "三角洲悬赏令",
+      "price": "888R 起",
+      "guarantee": "保底 2688W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-20-delta-bounty.jpg",
+      "tags": [
+        "悬赏令",
+        "字母",
+        "趣味单"
+      ],
+      "note": "从成功撤离后击败的干员名称中提取字母。一级888R/保2688W，二级1688R/保5088W，三级2588R/保8088W。"
+    },
+    {
+      "cat": "pc",
+      "name": "新年趣味单",
+      "price": "388R 起",
+      "guarantee": "保底 1288W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-21-new-year-fun-orders.jpg",
+      "tags": [
+        "新年",
+        "金变红",
+        "迷藏"
+      ],
+      "note": "金变红888R/保2488W：按首局金色物品格数，在后续对局带出对应红色格数；捉迷藏388R/保1288W：15分钟内寻找老板藏匿的物品。"
+    },
+    {
+      "cat": "pc",
+      "name": "金先灿烂（摸金单）",
+      "price": "端游388R 起",
+      "guarantee": "保底 688W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-22-golden-brilliant.png",
+      "tags": [
+        "摸金",
+        "金色物资",
+        "端手游"
+      ],
+      "note": "端游388R/保688W、688R/保2288W、1188R/保5888W；手游对应288R、528R、988R。分别累计35、70、115个金色物资。"
+    },
+    {
+      "cat": "pc",
+      "name": "子弹自由单",
+      "price": "298R 起",
+      "guarantee": "保底 888W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-23-ammo-freedom.jpg",
+      "tags": [
+        "子弹",
+        "自由单",
+        "撤离"
+      ],
+      "note": "298R：500发金蛋/保888W；520R：1000发金蛋/保1888W；788R：1000发金蛋/保2588W。撤离失败保险计入。"
+    },
+    {
+      "cat": "pc",
+      "name": "人头单",
+      "price": "488R 起",
+      "guarantee": "保底 888W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-24-elimination-order.jpg",
+      "tags": [
+        "击杀",
+        "人头",
+        "撤离"
+      ],
+      "note": "488R击杀10人/上限20人；888R击杀20人/上限40人；1288R击杀30人/上限60人。仅计算成功撤离对局的人头。"
+    },
+    {
+      "cat": "pc",
+      "name": "环太平洋",
+      "price": "900元 起",
+      "guarantee": "指定复活点撤离",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-25-pacific-rim.jpg",
+      "tags": [
+        "航天基地",
+        "复活点",
+        "撤离"
+      ],
+      "note": "900元：航天基地4处不同复活点成功撤离；1500元：6处不同复活点；2000元：6处不同复活点且撤离金额达到999W。"
+    },
+    {
+      "cat": "pc",
+      "name": "扫雷大作战（详细版）",
+      "price": "888R 起",
+      "guarantee": "保底 2288W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-26-mine-sweeper-battle-detailed.jpg",
+      "tags": [
+        "扫雷",
+        "卡牌",
+        "详细规则"
+      ],
+      "note": "4×4预埋4颗普通雷，6×6预埋12颗，8×8预埋26颗。按任务卡执行摸物、击杀或撤离任务，一把上限挖5次。"
+    },
+    {
+      "cat": "pc",
+      "name": "手癖趣味单",
+      "price": "888R",
+      "guarantee": "保底 2088W",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-27-handicap-fun-order.jpg",
+      "tags": [
+        "手癖",
+        "清图",
+        "限时"
+      ],
+      "note": "两字队美一字班。10分钟内清图计算100%保底，15分钟内60%，20分钟内40%，24分钟内10%，超过24分钟不计保底。"
+    },
+    {
+      "cat": "pc",
+      "name": "冬夜赴约·点亮圣诞树",
+      "price": "488R 起",
+      "guarantee": "保底 1488W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-28-christmas-tree.jpg",
+      "tags": [
+        "圣诞树",
+        "收集",
+        "节日活动"
+      ],
+      "note": "4SSR保1488W点亮1层，8SSR保2088W点亮2层，14SSR保2088W点亮3层，28SSR保6088W点亮全部圣诞树。"
+    },
+    {
+      "cat": "pc",
+      "name": "新年游乐狂欢购物单",
+      "price": "1288R 起",
+      "guarantee": "保底 3288W 起",
+      "featured": false,
+      "imageUrl": "/uploads/pc-price-29-new-year-gift-order.png",
+      "tags": [
+        "新年",
+        "购物单",
+        "重量"
+      ],
+      "note": "10KG：1288R/保3288W；30KG：3288R/保6888W；88KG：8888R/保1.5亿。仅计算撤离成功对局带出的红色物资重量。"
+    },
+    {
+      "cat": "mobile",
+      "name": "手游套餐 A",
+      "price": "待定",
+      "guarantee": "内容待填充",
+      "featured": true,
+      "imageUrl": "",
+      "tags": [
+        "可替换",
+        "手游"
+      ],
+      "note": "这里放手游项目说明、价格、保底或规则。"
+    },
+    {
+      "cat": "mobile",
+      "name": "手游套餐 B",
+      "price": "待定",
+      "guarantee": "内容待填充",
+      "imageUrl": "",
+      "tags": [
+        "可替换",
+        "手游"
+      ],
+      "note": "后续可替换为飞行棋、Bingo、物资类等实际服务。"
+    },
+    {
+      "cat": "mobile",
+      "name": "手游趣味单",
+      "price": "待定",
+      "guarantee": "内容待填充",
+      "imageUrl": "",
+      "tags": [
+        "趣味",
+        "占位"
+      ],
+      "note": "可添加玩法简介、结单条件和注意事项。"
+    },
+    {
+      "cat": "mobile",
+      "name": "手游体验单",
+      "price": "待定",
+      "guarantee": "内容待填充",
+      "imageUrl": "",
+      "tags": [
+        "体验",
+        "占位"
+      ],
+      "note": "可写每人限制、有效时间和适用游戏。"
+    }
   ],
   "companions": [
-    { "name": "音卡位置 01", "gender": "♀", "category": "三角洲行动", "level": "资料待填", "orders": "-", "imageUrl": "", "videoUrl": "", "tags": ["待上传", "音频/视频"] },
-    { "name": "音卡位置 02", "gender": "♂", "category": "三角洲行动", "level": "资料待填", "orders": "-", "imageUrl": "", "videoUrl": "", "tags": ["待上传", "音频/视频"] }
+    {
+      "name": "音卡位置 01",
+      "gender": "♀",
+      "category": "三角洲行动",
+      "level": "资料待填",
+      "orders": "-",
+      "imageUrl": "",
+      "videoUrl": "",
+      "tags": [
+        "待上传",
+        "音频/视频"
+      ]
+    },
+    {
+      "name": "音卡位置 02",
+      "gender": "♂",
+      "category": "三角洲行动",
+      "level": "资料待填",
+      "orders": "-",
+      "imageUrl": "",
+      "videoUrl": "",
+      "tags": [
+        "待上传",
+        "音频/视频"
+      ]
+    }
   ],
   "games": [
-    { "name": "扫雷大作战", "desc": "试玩入口已预留，后续填充游戏内容。", "imageUrl": "", "href": "" },
-    { "name": "幸运转盘", "desc": "试玩入口已预留，后续填充游戏内容。", "imageUrl": "", "href": "" },
-    { "name": "BINGO 2.0 超级版", "desc": "10×10随机物资棋盘，支持三连至十连、基础保底和多人房间同步。", "imageUrl": "", "href": "./games/bingo2-super.html" },
-    { "name": "物资大师", "desc": "试玩入口已预留，后续填充游戏内容。", "imageUrl": "", "href": "" },
-    { "name": "物资满仓", "desc": "试玩入口已预留，后续填充游戏内容。", "imageUrl": "", "href": "" },
-    { "name": "物资天平", "desc": "摸红天平已接入，点击后在新标签页打开。", "imageUrl": "", "href": "./games/mo-hong-tianping.html" }
+    {
+      "name": "扫雷大作战",
+      "desc": "试玩入口已预留，后续填充游戏内容。",
+      "imageUrl": "",
+      "href": ""
+    },
+    {
+      "name": "幸运转盘",
+      "desc": "试玩入口已预留，后续填充游戏内容。",
+      "imageUrl": "",
+      "href": ""
+    },
+    {
+      "name": "BINGO 2.0 超级版",
+      "desc": "10×10随机物资棋盘，支持三连至十连、基础保底和多人房间同步。",
+      "imageUrl": "",
+      "href": "./games/bingo2-super.html"
+    },
+    {
+      "name": "物资大师",
+      "desc": "试玩入口已预留，后续填充游戏内容。",
+      "imageUrl": "",
+      "href": ""
+    },
+    {
+      "name": "物资满仓",
+      "desc": "试玩入口已预留，后续填充游戏内容。",
+      "imageUrl": "",
+      "href": ""
+    },
+    {
+      "name": "物资天平",
+      "desc": "摸红天平已接入，点击后在新标签页打开。",
+      "imageUrl": "",
+      "href": "./games/mo-hong-tianping.html"
+    }
   ],
   "rights": [
-    { "title": "老板须知内容待上传", "body": "这里可以填写完整须知内容。", "imageUrl": "", "fileUrl": "" },
-    { "title": "接单规则内容待上传", "body": "这里可以填写完整接单规则。", "imageUrl": "", "fileUrl": "" },
-    { "title": "售后说明内容待上传", "body": "这里可以填写完整售后说明。", "imageUrl": "", "fileUrl": "" }
+    {
+      "title": "老板须知内容待上传",
+      "body": "这里可以填写完整须知内容。",
+      "imageUrl": "",
+      "fileUrl": ""
+    },
+    {
+      "title": "接单规则内容待上传",
+      "body": "这里可以填写完整接单规则。",
+      "imageUrl": "",
+      "fileUrl": ""
+    },
+    {
+      "title": "售后说明内容待上传",
+      "body": "这里可以填写完整售后说明。",
+      "imageUrl": "",
+      "fileUrl": ""
+    }
   ],
   "about": "雪烬电竞门户已完成独立视觉改版。\n当前内容为占位信息，后续可替换为团队介绍、服务范围、联系方式和正式规则。"
 }
