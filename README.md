@@ -15,6 +15,7 @@ npm start
 - 日志页：`http://localhost:3000/logs.html`
 - 摸红天平：`http://localhost:3000/games/mo-hong-tianping.html`
 - BINGO 2.0 超级版：`http://localhost:3000/games/bingo2-super.html`
+- 三角洲扫雷大作战：`http://localhost:3000/games/minesweeper-battle.html`
 
 后台是可视化页面，登录后可以修改首页名称、头像路径、联系方式、轮播、多条公告、手游/端游价目表、陪陪音卡、趣味单游戏区、老板须知和关于内容。公告、套餐、音卡、趣味单游戏、老板须知都支持上传图片；音卡和老板须知也支持上传视频或内容文件。
 

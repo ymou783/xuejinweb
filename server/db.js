@@ -19,6 +19,7 @@ function openDatabase() {
   db.exec(fs.readFileSync(schemaPath, "utf8"));
   runMigrations();
   seedSiteContent();
+  ensureMinesweeperGame();
   return db;
 }
 
@@ -43,6 +44,26 @@ function seedSiteContent() {
   database
     .prepare("INSERT INTO site_content (id, content_json, updated_at) VALUES (1, ?, CURRENT_TIMESTAMP)")
     .run(content);
+}
+
+function ensureMinesweeperGame() {
+  const row = db.prepare("SELECT content_json FROM site_content WHERE id = 1").get();
+  if (!row) return;
+  const content = JSON.parse(row.content_json);
+  const games = Array.isArray(content.games) ? content.games : [];
+  const game = {
+    name: "三角洲扫雷大作战",
+    desc: "老板先部署地雷，玩家按撤离带出结果获得翻格次数；找到全部地雷并完成基础保底后结单。",
+    imageUrl: "./assets/minesweeper/game-concept-v2.png",
+    href: "./games/minesweeper-battle.html"
+  };
+  const index = games.findIndex((item) => item?.href?.includes("minesweeper-battle") || item?.name?.includes("扫雷"));
+  if (index >= 0 && games[index]?.href && games[index]?.imageUrl !== "./assets/minesweeper/game-concept.png") return;
+  if (index >= 0) games[index] = { ...games[index], ...game };
+  else games.unshift(game);
+  content.games = games;
+  db.prepare("UPDATE site_content SET content_json = ?, updated_at = CURRENT_TIMESTAMP WHERE id = 1")
+    .run(JSON.stringify(content, null, 2));
 }
 
 function getSiteContent() {

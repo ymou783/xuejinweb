@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="雪烬电竞三角洲扫雷大作战：八种地雷、老板预埋、翻格找雷与保底计算。" />
+    <title>三角洲扫雷大作战 - 雪烬电竞</title>
+    <link rel="icon" href="../assets/minesweeper/item-sprites.png" type="image/png" />
+    <link rel="stylesheet" href="../css/minesweeper.css" />
+    <link rel="stylesheet" href="../css/room-entry.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#mineBoard">跳到棋盘</a>
+    <main class="game-shell">
+      <header class="topbar">
+        <a class="topbar-action" href="../index.html" aria-label="返回首页">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+          <span>返回首页</span>
+        </a>
+        <div class="brand-lockup">
+          <span class="brand-mark" aria-hidden="true">△</span>
+          <div><h1>三角洲<span>扫雷大作战</span></h1><small>老板预埋 · 八种雷型 · 翻格拿结果</small></div>
+        </div>
+        <div class="topbar-tools">
+          <button class="topbar-action" id="helpBtn" type="button"><span>玩法说明</span></button>
+          <button class="topbar-action" id="restartBtn" type="button"><span>重置游戏</span></button>
+        </div>
+      </header>
+
+      <section class="room-bar" id="roomBar" hidden>
+        <strong>房间模式</strong><span id="roomCodeText"></span><span id="roomSyncText">正在连接...</span>
+      </section>
+
+      <section class="mission-strip" aria-label="当前任务状态">
+        <div><span class="eyebrow">DELTA EXTRACTION / MINE OPS</span><strong id="missionText">先选规格，再部署地雷</strong></div>
+<div class="mission-stats"><span>阶段 <b id="phaseText">部署地雷</b></span><span>普通雷 <b><i id="deployedCount">0</i>/<i id="mineTarget">4</i></b></span><span>特殊雷 <b><i id="specialDeployedCount">0</i>/<i id="specialTarget">4</i></b></span><span>已找到 <b><i id="foundCount">0</i>/<i id="foundTarget">8</i></b></span><span>挖雷次数 <b class="dig-highlight" id="digCount">0</b></span></div>
+      </section>
+
+      <section class="dashboard-grid">
+        <aside class="left-column">
+          <section class="panel preset-panel" aria-labelledby="specTitle">
+            <div class="panel-head"><div><span class="section-kicker">01 / MAP LOADOUT</span><h2 id="specTitle">棋盘预设</h2></div><span id="saveStatus">准备就绪</span></div>
+            <div class="spec-list" id="specList"></div>
+          </section>
+
+          <section class="panel mine-panel" aria-labelledby="mineTypeTitle">
+            <div class="panel-head"><div><span class="section-kicker">02 / ARMORY</span><h2 id="mineTypeTitle">地雷类型 <small>可部署</small></h2></div><span class="panel-note">点击选择，再点棋盘</span></div>
+            <div class="mine-type-list" id="mineTypeList"></div>
+<p class="panel-footnote">普通雷按棋盘预埋数部署；特殊雷额外再部署同等数量（4×4 为普通 4 + 特殊 4）。已放置的雷可再次点击撤回。</p>
+          </section>
+        </aside>
+
+        <section class="center-column">
+          <section class="panel board-panel" aria-labelledby="boardTitle">
+            <div class="board-heading">
+<div><span class="section-kicker" id="boardKicker">4×4 / 8 雷</span><h2 id="boardTitle">部署雷区</h2></div>
+              <p id="boardHint">选择雷型后点击格子部署；答案只在部署阶段显示。</p>
+            </div>
+            <div class="board-frame" id="boardFrame">
+              <div class="coordinates top" id="columnLabels" aria-hidden="true"></div>
+              <div class="coordinates side" id="rowLabels" aria-hidden="true"></div>
+              <div class="mine-board" id="mineBoard" role="grid" aria-label="扫雷棋盘"></div>
+            </div>
+            <div class="board-actions">
+<button class="primary-button" id="lockMapBtn" type="button" disabled>还需普通 4 + 特殊 4 颗</button>
+              <button class="secondary-button" id="redeployBtn" type="button">清空部署</button>
+              <button class="danger-button" id="settleBtn" type="button" disabled>结单条件未达成</button>
+            </div>
+            <div class="message" id="gameMessage" role="status" aria-live="polite">请先选择规格并部署地雷。</div>
+          </section>
+
+          <section class="panel legend-panel" aria-labelledby="legendTitle">
+            <div class="panel-head"><div><span class="section-kicker">03 / FIELD GUIDE</span><h2 id="legendTitle">八种雷型识别卡</h2></div><span class="panel-note">翻开后显示真实类型</span></div>
+            <div class="mine-legend" id="mineLegend"></div>
+          </section>
+        </section>
+
+        <aside class="right-column">
+          <section class="panel ops-panel" aria-labelledby="guaranteeTitle">
+            <div class="ops-heading"><div><span class="section-kicker">04 / OPERATION DESK</span><h2 id="guaranteeTitle">操作台</h2></div><span class="ops-live">LIVE</span></div>
+            <div class="guarantee-grid"><div><span>当前剩余保底</span><strong><b id="baseValue">2288</b>W</strong></div><div><span>已选奖励总档位</span><strong class="pink-text" id="selectedLootDigs">0</strong><small>次</small></div></div>
+            <form class="calculator" id="calculatorForm">
+              <label>撤离成功价值（W）<input id="withdrawInput" type="number" min="0" step="1" placeholder="例如 1200" /></label>
+              <div class="loot-heading"><span>高价值物资（可多选）</span><label class="select-all"><input id="selectAllLoot" type="checkbox" /> 全选</label></div>
+              <div class="loot-options" id="lootOptions"></div>
+              <div class="calculator-buttons"><button class="primary-button" type="submit">记录撤离结果</button><button class="danger-button" id="failBtn" type="button">撤离失败 +60W</button></div>
+            </form>
+            <div class="dig-preview"><div><span>本次预计获得挖雷次数</span><strong><b id="previewDigs">0</b> 次</strong></div><div><span>当前挖雷次数</span><strong class="dig-highlight" id="capLeft">0</strong><small>（允许为负）</small></div></div>
+            <div class="formula" id="formulaText">金额档位 + 已选物资档位，逐项累加；挖雷次数允许变成负数。</div>
+            <div class="condition-row"><span id="mineCondition">扫雷未达成</span><span id="baseCondition">保底未达成</span></div>
+          </section>
+
+          <section class="panel log-panel" aria-labelledby="logTitle">
+            <div class="panel-head"><div><span class="section-kicker">05 / EVENT FEED</span><h2 id="logTitle">行动日志</h2></div><button id="undoBtn" type="button">撤回上一步</button></div>
+            <ol class="event-log" id="eventLog"></ol>
+          </section>
+        </aside>
+      </section>
+
+      <section class="info-band">
+<article class="panel rules-panel"><div class="panel-head"><div><span class="section-kicker">RULES</span><h2>玩法说明</h2></div></div><ol><li>老板先选择规格，再选择雷型部署；普通雷按棋盘预埋数部署，特殊雷额外再部署同等数量（4×4 为普通 4 + 特殊 4）。</li><li>保存地图后进入翻格阶段，所有格子隐藏雷型，不设置旗子、不显示数字提示。</li><li>每次翻格都会消耗 1 次挖雷次数；次数可以继续下降到负数。</li><li>撤离价值档位与已勾选的高价值物资档位逐项累加，支持同一把多选。</li><li>找到全部地雷且基础保底低于 0 后，才可以正式结单。</li></ol></article>
+        <article class="panel payout-panel"><div class="panel-head"><div><span class="section-kicker">REWARD TABLE</span><h2>挖雷次数计算</h2></div><span class="panel-note">多选可叠加</span></div><table><thead><tr><th>条件</th><th>获得</th></tr></thead><tbody><tr><td>撤离成功价值 ≥ 800W / 1000W / 1300W / 1500W</td><td>1 / 2 / 3 / 4 次</td></tr><tr><td>六格及以内小红</td><td>+1 次</td></tr><tr><td>八格及以上大红</td><td>+2 次</td></tr><tr><td>非洲之心 / 海洋之泪 / 复苏呼吸机</td><td>+3 次</td></tr></tbody></table></article>
+      </section>
+    </main>
+
+    <div class="dialog-backdrop" id="dialogBackdrop" hidden><section class="game-dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle"><button class="dialog-close" id="dialogClose" type="button" aria-label="关闭">×</button><div id="dialogContent"></div></section></div>
+    <script type="module" src="../js/minesweeper.js"></script>
+    <script type="module" src="../js/room-entry.js"></script>
+  </body>
+</html>

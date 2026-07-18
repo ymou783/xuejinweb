@@ -1,2 +1,5 @@
 server-live.*.log
+output/
+.playwright-cli/
+.tmp-*.log
 单子/

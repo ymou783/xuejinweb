@@ -540,10 +540,10 @@
   ],
   "games": [
     {
-      "name": "扫雷大作战",
-      "desc": "试玩入口已预留，后续填充游戏内容。",
-      "imageUrl": "",
-      "href": ""
+      "name": "三角洲扫雷大作战",
+      "desc": "老板先部署地雷，玩家按撤离带出结果获得翻格次数；找到全部地雷并完成基础保底后结单。",
+      "imageUrl": "./assets/minesweeper/game-concept-v2.png",
+      "href": "./games/minesweeper-battle.html"
     },
     {
       "name": "幸运转盘",

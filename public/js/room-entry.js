@@ -1,6 +1,7 @@
 const gameRoutes = {
   "mo-hong-tianping": "/games/mo-hong-tianping.html",
-  "bingo2-super": "/games/bingo2-super.html"
+  "bingo2-super": "/games/bingo2-super.html",
+  "minesweeper-battle": "/games/minesweeper-battle.html"
 };
 
 function normalizeRoomCode(value) {
