@@ -237,8 +237,10 @@ function renderLootOptions() {
 
 function renderBoard() {
   const item = spec();
+  const cellSize = item.size === 4 ? "clamp(72px, 7vw, 96px)" : item.size === 6 ? "clamp(54px, 5vw, 72px)" : "clamp(40px, 4vw, 58px)";
   els.mineBoard.style.setProperty("--size", item.size);
   els.boardFrame.style.setProperty("--size", item.size);
+  els.boardFrame.style.setProperty("--cell", cellSize);
   els.mineBoard.setAttribute("aria-rowcount", item.size);
   els.mineBoard.setAttribute("aria-colcount", item.size);
   els.columnLabels.innerHTML = Array.from({ length: item.size }, (_, index) => `<span>${index + 1}</span>`).join("");
@@ -250,9 +252,9 @@ function renderBoard() {
     let content = "";
     let label = `${cellName(index)}，未翻开`;
     if (state.phase === "setup") {
-      if (mine) { className += ` deployed${swapSource === index ? " swap-selected" : ""}`; content = `<i class="mine-cell-art card-${mineType(mine.type).asset}" aria-hidden="true"></i>`; label = `${cellName(index)}，${mineType(mine.type).name}，可拖动交换位置`; } else className += " covered";
+      if (mine) { className += ` deployed${swapSource === index ? " swap-selected" : ""}`; content = `<i class="mine-cell-art card-${mineType(mine.type).asset}" aria-hidden="true"></i><span class="mine-cell-name">${mineType(mine.type).name}</span>`; label = `${cellName(index)}，${mineType(mine.type).name}，可拖动交换位置`; } else className += " covered";
     } else if (open) {
-      if (mine) { className += " open mine-found"; content = `<i class="mine-cell-art card-${mineType(mine.type).asset}" aria-hidden="true"></i>`; label = `${cellName(index)}，找到${mineType(mine.type).name}`; } else { className += " open safe"; label = `${cellName(index)}，安全格`; }
+      if (mine) { className += " open mine-found"; content = `<i class="mine-cell-art card-${mineType(mine.type).asset}" aria-hidden="true"></i><span class="mine-cell-name">${mineType(mine.type).name}</span>`; label = `${cellName(index)}，找到${mineType(mine.type).name}`; } else { className += " open safe"; label = `${cellName(index)}，安全格`; }
     } else className += " covered";
     const draggable = state.phase === "setup" && mine ? ' draggable="true"' : "";
     return `<button class="${className}" type="button" role="gridcell" data-index="${index}" aria-label="${label}" aria-rowindex="${Math.floor(index / item.size) + 1}" aria-colindex="${index % item.size + 1}"${draggable} ${state.settled ? "disabled" : ""}>${content}</button>`;
