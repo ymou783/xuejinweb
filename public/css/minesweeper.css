@@ -151,6 +151,8 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
 .danger-button { border-color: rgba(255, 123, 154, .45); background: rgba(128, 44, 78, .85); }
 .primary-button:hover:not(:disabled), .secondary-button:hover:not(:disabled), .danger-button:hover:not(:disabled), #undoBtn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.12); }
 .message { min-height: 44px; margin: 12px 20px 0; padding: 11px 13px; border: 1px solid rgba(120, 188, 225, .2); border-radius: 10px; color: var(--muted); background: rgba(5, 26, 49, .48); font-size: 15px; line-height: 1.4; }
+.pending-task { width: calc(100% - 40px); margin: 10px 20px 0; padding: 11px 13px; border: 1px solid rgba(255, 92, 168, .52); border-radius: 10px; color: #fff; background: linear-gradient(100deg, rgba(255, 92, 168, .25), rgba(76, 215, 255, .12)); font-weight: 900; text-align: left; cursor: pointer; }
+.pending-task:hover { border-color: var(--pink); background: linear-gradient(100deg, rgba(255, 92, 168, .38), rgba(76, 215, 255, .18)); }
 .message.success { color: var(--green); border-color: rgba(85, 225, 189, .45); }
 .message.error { color: #ffd0d8; border-color: rgba(255, 123, 154, .5); }
 .legend-panel { padding-bottom: 16px; }
@@ -219,6 +221,10 @@ input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--pink); }
 .dialog-body li::marker { color: var(--pink); font-weight: 900; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 20px; }
 .result-value { margin: 16px 0; color: var(--green); font-size: 42px; font-weight: 900; }
+.task-kicker { display: block; color: var(--cyan); font-size: 11px; font-weight: 900; letter-spacing: .16em; }
+.task-question { margin: 14px 0; padding: 14px; border: 1px solid rgba(255, 92, 168, .35); border-radius: 10px; color: var(--text) !important; background: rgba(255, 92, 168, .1); }
+.task-question strong { display: block; margin-top: 5px; color: var(--pink); font-size: 20px; line-height: 1.4; }
+.task-result-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
 
 @media (max-width: 1450px) {
   :root { --cell: clamp(48px, 5.7vw, 70px); }
