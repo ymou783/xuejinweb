@@ -29,11 +29,11 @@ const MINE_TYPES = [
   { key: "normal", name: "普通雷", asset: "normal", limit: "board", summary: "基础预埋雷", detail: "普通地雷，找到全部普通雷后结束挖雷阶段。", effect: "翻到：找到 1 颗普通雷" },
   { key: "wogua", name: "窝瓜雷", asset: "wogua", limit: 3, summary: "任务判定雷", task: "下一局打手击杀总和 > 6 人", detail: "翻到后确认“打手击杀总和 > 6 人”是否完成。成功不扣额外次数，失败扣 1 次挖雷。", effect: "翻到：选择任务成功或失败" },
   { key: "yinYang", name: "阴阳向日葵", asset: "yin-yang", limit: 2, summary: "保底增益雷", detail: "翻到后立即增加当前基础保底 500W，是本局高价值保底增益。", effect: "触发后保底增加 500W" },
-  { key: "potato", name: "土豆雷", asset: "potato", limit: 2, summary: "任务判定雷", task: "下一局必须处理伏天队", detail: "翻到后确认“处理伏天队”是否完成。成功不扣额外次数，失败扣 1 次挖雷。", effect: "翻到：选择任务成功或失败" },
+  { key: "potato", name: "土豆雷", asset: "potato", limit: 2, summary: "任务判定雷", task: "下一局必须处理伏天一队", detail: "翻到后确认“下一局处理伏天一队”是否完成。成功不扣额外次数，失败扣 1 次挖雷。", effect: "翻到：选择任务成功或失败" },
   { key: "sunflower", name: "向日葵", asset: "sunflower", limit: 2, summary: "保底增益雷", detail: "翻到后立即增加当前基础保底 200W，适合用来抬高本局保底。", effect: "触发后保底增加 200W" },
   { key: "pea", name: "排雷豌豆", asset: "pea-sweeper", limit: 2, summary: "自动排雷雷", detail: "翻到后自动翻开 1 个尚未翻开的普通雷，不额外消耗挖雷次数。", effect: "触发后自动翻开一个普通雷" },
   { key: "pepper", name: "辣椒雷", asset: "pepper", limit: 1, summary: "任务判定雷", task: "下一局完成卡面指定的武器条件", detail: "翻到后确认卡面任务是否完成。成功不扣额外次数，失败扣 1 次挖雷。", effect: "翻到：选择任务成功或失败" },
-  { key: "burst", name: "爆裂菜问", asset: "burst-cabbage", limit: 1, summary: "变形替换雷", detail: "翻到后从尚未翻开的普通雷中随机挑选 1 个，替换为辣椒雷。", effect: "触发后随机将 1 个普通雷替换为辣椒雷" }
+  { key: "burst", name: "爆裂菜问", asset: "burst-cabbage", limit: 1, summary: "变形替换雷", detail: "翻到后在未挖开的窝瓜雷、土豆雷、辣椒雷中随机选择 1 个，将其替换为普通雷。", effect: "触发后随机将 1 个窝瓜/土豆/辣椒雷替换为普通雷" }
 ];
 
 const LOOT_OPTIONS = [
@@ -377,12 +377,12 @@ function revealOrdinaryMine() {
   return cellName(target.index);
 }
 
-function replaceOrdinaryMineWithPepper() {
-  const candidates = state.mines.filter((entry) => entry.type === "normal" && !isOpen(entry.index));
+function replaceSpecialMineWithNormal() {
+  const candidates = state.mines.filter((entry) => ["wogua", "potato", "pepper"].includes(entry.type) && !isOpen(entry.index));
   if (!candidates.length) return null;
   const target = candidates[Math.floor(Math.random() * candidates.length)];
-  target.type = "pepper";
-  target.normalCredit = true;
+  target.type = "normal";
+  target.normalCredit = false;
   return cellName(target.index);
 }
 
@@ -394,8 +394,8 @@ function applyMineEffect(mine, index) {
     return revealed ? `${item.effect}（位置 ${revealed}）` : "没有可自动翻开的普通雷";
   }
   if (mine.type === "burst") {
-    const replaced = replaceOrdinaryMineWithPepper();
-    return replaced ? `${item.effect}（位置 ${replaced}）` : "没有可替换的普通雷";
+    const replaced = replaceSpecialMineWithNormal();
+    return replaced ? `${item.effect}（位置 ${replaced}）` : "没有可替换的窝瓜/土豆/辣椒雷";
   }
   return item.effect;
 }
@@ -478,7 +478,7 @@ async function saveRoom(message, eventType) { try { const response = await fetch
 
 function showDialog(html) { els.dialogContent.innerHTML = html; els.dialogBackdrop.hidden = false; document.body.style.overflow = "hidden"; requestAnimationFrame(() => els.dialogContent.querySelector("button")?.focus()); }
 function closeDialog() { els.dialogBackdrop.hidden = true; document.body.style.overflow = ""; }
-function showHelp() { showDialog(`<div class="dialog-body"><h2 id="dialogTitle">三角洲扫雷作战规则</h2><p>开局会自动部署全部地雷，老板只需要调整位置并确认布局。</p><ol><li>4×4 棋盘固定放入：普通雷 4、向日葵 2、阴阳向日葵 2、排雷豌豆 1、窝瓜雷 3、土豆雷 1、辣椒雷 2、爆裂菜问 1，共 16 个。</li><li>部署阶段可拖动任意两格交换位置；手机或不方便拖动时，可依次点击两格交换。</li><li>确认布局后所有雷型隐藏，进入翻格阶段；不设置旗子、不显示数字提示。</li><li>挖雷次数为 0 或负数时不能继续翻格；找到 4 颗普通雷后挖雷部分结束。</li><li>窝瓜雷、土豆雷、辣椒雷翻出后记录为待判定任务；失败额外扣 1 次挖雷。</li><li>阴阳向日葵增加 500W 保底，向日葵增加 200W；排雷豌豆自动翻开 1 个普通雷，爆裂菜问随机把 1 个未翻开的普通雷替换成辣椒雷。</li><li>高价值物资支持多选；挖雷结束后仍可继续记录撤离结果并进行结单。</li></ol><div class="dialog-actions"><button class="primary-button" data-action="close" type="button">知道了</button></div></div>`); }
+function showHelp() { showDialog(`<div class="dialog-body"><h2 id="dialogTitle">三角洲扫雷作战规则</h2><p>开局会自动部署全部地雷，老板只需要调整位置并确认布局。</p><ol><li>4×4 棋盘固定放入：普通雷 4、向日葵 2、阴阳向日葵 2、排雷豌豆 1、窝瓜雷 3、土豆雷 1、辣椒雷 2、爆裂菜问 1，共 16 个。</li><li>部署阶段可拖动任意两格交换位置；手机或不方便拖动时，可依次点击两格交换。</li><li>确认布局后所有雷型隐藏，进入翻格阶段；不设置旗子、不显示数字提示。</li><li>挖雷次数为 0 或负数时不能继续翻格；找到 4 颗普通雷后挖雷部分结束。</li><li>窝瓜雷、土豆雷、辣椒雷翻出后记录为待判定任务；土豆雷任务为下一局必须处理伏天一队；失败额外扣 1 次挖雷。</li><li>阴阳向日葵增加 500W 保底，向日葵增加 200W；排雷豌豆自动翻开 1 个普通雷，爆裂菜问会在未挖开的窝瓜雷、土豆雷、辣椒雷中随机选择 1 个替换为普通雷。</li><li>高价值物资支持多选；挖雷结束后仍可继续记录撤离结果并进行结单。</li></ol><div class="dialog-actions"><button class="primary-button" data-action="close" type="button">知道了</button></div></div>`); }
 
 els.specList.addEventListener("click", (event) => { const button = event.target.closest("[data-spec]"); if (button) chooseSpec(Number(button.dataset.spec)); });
 els.mineBoard.addEventListener("click", (event) => { const button = event.target.closest("[data-index]"); if (!button) return; const index = Number(button.dataset.index); state.phase === "setup" ? selectOrSwapMine(index) : openCell(index); });
