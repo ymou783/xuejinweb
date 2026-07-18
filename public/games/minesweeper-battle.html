@@ -33,7 +33,7 @@
 
       <section class="mission-strip" aria-label="当前任务状态">
         <div><span class="eyebrow">DELTA EXTRACTION / MINE OPS</span><strong id="missionText">先选规格，再部署地雷</strong></div>
-<div class="mission-stats"><span>阶段 <b id="phaseText">调整布局</b></span><span>普通雷 <b><i id="deployedCount">4</i>/<i id="mineTarget">4</i></b></span><span>其他雷 <b><i id="specialDeployedCount">12</i>/<i id="specialTarget">12</i></b></span><span>已找到 <b><i id="foundCount">0</i>/<i id="foundTarget">16</i></b></span><span>挖雷次数 <b class="dig-highlight" id="digCount">0</b></span></div>
+<div class="mission-stats"><span>阶段 <b id="phaseText">调整布局</b></span><span>普通雷 <b><i id="deployedCount">4</i>/<i id="mineTarget">4</i></b></span><span>其他雷 <b><i id="specialDeployedCount">12</i>/<i id="specialTarget">12</i></b></span><span>已找到普通雷 <b><i id="foundCount">0</i>/<i id="foundTarget">4</i></b></span><span>挖雷次数 <b class="dig-highlight" id="digCount">0</b></span></div>
       </section>
 
       <section class="dashboard-grid">
@@ -100,7 +100,7 @@
       </section>
 
       <section class="info-band">
-<article class="panel rules-panel"><div class="panel-head"><div><span class="section-kicker">RULES</span><h2>玩法说明</h2></div></div><ol><li>4×4 开局自动部署 16 个雷：普通 4、向日葵 2、阴阳向日葵 2、排雷豌豆 1、窝瓜 3、土豆 1、辣椒 2、爆裂菜问 1。</li><li>部署阶段拖动任意两格交换位置；也可以依次点击两格交换。确认布局后所有雷型隐藏。</li><li>每次翻格都会消耗 1 次挖雷次数；次数可以继续下降到负数。</li><li>窝瓜雷、土豆雷、辣椒雷翻出后会记录为待判定任务；成功不额外扣次数，失败额外扣 1 次挖雷。</li><li>阴阳向日葵翻出增加 500W 保底，向日葵翻出增加 200W 保底。</li><li>排雷豌豆会自动翻开 1 个尚未翻开的普通雷；爆裂菜问会把 1 个未翻开的普通雷随机替换为辣椒雷。</li><li>撤离价值档位与已勾选的高价值物资档位逐项累加，支持同一把多选。</li><li>找到全部地雷且基础保底低于 0 后，才可以正式结单。</li></ol></article>
+<article class="panel rules-panel"><div class="panel-head"><div><span class="section-kicker">RULES</span><h2>玩法说明</h2></div></div><ol><li>4×4 开局自动部署 16 个雷：普通 4、向日葵 2、阴阳向日葵 2、排雷豌豆 1、窝瓜 3、土豆 1、辣椒 2、爆裂菜问 1。</li><li>部署阶段拖动任意两格交换位置；也可以依次点击两格交换。确认布局后所有雷型隐藏。</li><li>每次翻格都会消耗 1 次挖雷次数；挖雷次数为 0 或负数时不能继续翻格。</li><li>找到 4 颗普通雷后，挖雷部分立即结束；特殊雷不计入普通雷通关数量。</li><li>窝瓜雷、土豆雷、辣椒雷翻出后会记录为待判定任务；成功不额外扣次数，失败额外扣 1 次挖雷。</li><li>阴阳向日葵翻出增加 500W 保底，向日葵翻出增加 200W 保底。</li><li>排雷豌豆会自动翻开 1 个尚未翻开的普通雷；爆裂菜问会把 1 个未翻开的普通雷随机替换为辣椒雷，该位置仍计入普通雷目标。</li><li>撤离价值档位与已勾选的高价值物资档位逐项累加，支持同一把多选。</li><li>找到 4 颗普通雷且基础保底低于 0 后，才可以正式结单。</li></ol></article>
         <article class="panel payout-panel"><div class="panel-head"><div><span class="section-kicker">REWARD TABLE</span><h2>挖雷次数计算</h2></div><span class="panel-note">多选可叠加</span></div><table><thead><tr><th>条件</th><th>获得</th></tr></thead><tbody><tr><td>撤离成功价值 ≥ 800W / 1000W / 1300W / 1500W</td><td>1 / 2 / 3 / 4 次</td></tr><tr><td>六格及以内小红</td><td>+1 次</td></tr><tr><td>八格及以上大红</td><td>+2 次</td></tr><tr><td>非洲之心 / 海洋之泪 / 复苏呼吸机</td><td>+3 次</td></tr></tbody></table></article>
       </section>
     </main>

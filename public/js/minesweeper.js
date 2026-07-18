@@ -26,7 +26,7 @@ const SPECIAL_LOADOUT_WEIGHTS = {
 };
 
 const MINE_TYPES = [
-  { key: "normal", name: "普通雷", asset: "normal", limit: "board", summary: "基础预埋雷", detail: "普通地雷，全部地雷挖完后完成扫雷条件。", effect: "翻到：找到 1 颗地雷" },
+  { key: "normal", name: "普通雷", asset: "normal", limit: "board", summary: "基础预埋雷", detail: "普通地雷，找到全部普通雷后结束挖雷阶段。", effect: "翻到：找到 1 颗普通雷" },
   { key: "wogua", name: "窝瓜雷", asset: "wogua", limit: 3, summary: "任务判定雷", task: "下一局打手击杀总和 > 6 人", detail: "翻到后确认“打手击杀总和 > 6 人”是否完成。成功不扣额外次数，失败扣 1 次挖雷。", effect: "翻到：选择任务成功或失败" },
   { key: "yinYang", name: "阴阳向日葵", asset: "yin-yang", limit: 2, summary: "保底增益雷", detail: "翻到后立即增加当前基础保底 500W，是本局高价值保底增益。", effect: "触发后保底增加 500W" },
   { key: "potato", name: "土豆雷", asset: "potato", limit: 2, summary: "任务判定雷", task: "下一局必须处理伏天队", detail: "翻到后确认“处理伏天队”是否完成。成功不扣额外次数，失败扣 1 次挖雷。", effect: "翻到：选择任务成功或失败" },
@@ -140,12 +140,13 @@ function targetCount(key, item = spec()) { return loadoutForSpec(item)[key] || 0
 function mineAt(index) { return state.mines.find((mine) => mine.index === index) || null; }
 function isOpen(index) { return state.opened.includes(index); }
 function foundMines() { return state.opened.filter((index) => mineAt(index)).length; }
+function normalFoundMines() { return state.opened.filter((index) => { const mine = mineAt(index); return mine && (mine.type === "normal" || mine.normalCredit); }).length; }
 function normalTarget() { return targetCount("normal"); }
 function specialTarget() { return Object.entries(loadout()).filter(([key]) => key !== "normal").reduce((sum, [, count]) => sum + count, 0); }
 function totalMineTarget() { return normalTarget() + specialTarget(); }
 function normalCount() { return mineCount("normal"); }
 function specialCount() { return state.mines.length - normalCount(); }
-function mineDone() { return foundMines() >= totalMineTarget() && state.mines.length === totalMineTarget(); }
+function mineDone() { return normalFoundMines() >= normalTarget(); }
 function baseDone() { return state.base < 0; }
 function cellName(index) { return `${String.fromCharCode(65 + Math.floor(index / spec().size))}${index % spec().size + 1}`; }
 function timeLabel() { return new Date().toLocaleTimeString("zh-CN", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" }); }
@@ -260,25 +261,26 @@ function renderBoard() {
       if (mine) { className += " open mine-found"; content = `<i class="mine-cell-art card-${mineType(mine.type).asset}" aria-hidden="true"></i><span class="mine-cell-name">${mineType(mine.type).name}</span>`; label = `${cellName(index)}，找到${mineType(mine.type).name}`; } else { className += " open safe"; label = `${cellName(index)}，安全格`; }
     } else className += " covered";
     const draggable = state.phase === "setup" && mine ? ' draggable="true"' : "";
-    return `<button class="${className}" type="button" role="gridcell" data-index="${index}" aria-label="${label}" aria-rowindex="${Math.floor(index / item.size) + 1}" aria-colindex="${index % item.size + 1}"${draggable} ${state.settled ? "disabled" : ""}>${content}</button>`;
+    const miningLocked = state.phase === "play" && (mineDone() || state.digs <= 0);
+    return `<button class="${className}" type="button" role="gridcell" data-index="${index}" aria-label="${label}" aria-rowindex="${Math.floor(index / item.size) + 1}" aria-colindex="${index % item.size + 1}"${draggable} ${(state.settled || miningLocked) ? "disabled" : ""}>${content}</button>`;
   }).join("");
 }
 
 function renderStatus() {
   const item = spec();
-  const found = foundMines();
-  els.missionText.textContent = state.settled ? "本局已结单" : state.phase === "setup" ? `${totalMineTarget()} 个雷已自动部署，拖动调整位置` : "地图已锁定，按结果翻开格子";
-  els.phaseText.textContent = state.settled ? "已结单" : state.phase === "setup" ? "调整布局" : "翻开格子";
+  const found = normalFoundMines();
+  els.missionText.textContent = state.settled ? "本局已结单" : state.phase === "setup" ? `${totalMineTarget()} 个雷已自动部署，拖动调整位置` : mineDone() ? "普通雷已找齐，挖雷结束" : "地图已锁定，按结果翻开格子";
+  els.phaseText.textContent = state.settled ? "已结单" : state.phase === "setup" ? "调整布局" : mineDone() ? "挖雷结束" : "翻开格子";
   els.deployedCount.textContent = normalCount();
   els.mineTarget.textContent = normalTarget();
   els.specialDeployedCount.textContent = specialCount();
   els.specialTarget.textContent = specialTarget();
   els.foundCount.textContent = found;
-  els.foundTarget.textContent = totalMineTarget();
+  els.foundTarget.textContent = normalTarget();
   els.digCount.textContent = state.digs;
   els.boardKicker.textContent = `${item.size}×${item.size} / ${totalMineTarget()} 雷`;
-  els.boardTitle.textContent = state.phase === "setup" ? "部署雷区" : mineDone() ? "全部地雷已找到" : "翻开格子找雷";
-  els.boardHint.textContent = state.phase === "setup" ? "地雷已自动部署；拖动任意两格交换位置，也可以依次点击两格完成交换。" : "每翻一个格子都会消耗 1 次，挖雷次数允许低于 0。";
+  els.boardTitle.textContent = state.phase === "setup" ? "部署雷区" : mineDone() ? "普通雷已找齐" : "翻开格子找雷";
+  els.boardHint.textContent = state.phase === "setup" ? "地雷已自动部署；拖动任意两格交换位置，也可以依次点击两格完成交换。" : mineDone() ? "4 颗普通雷已全部找到，挖雷部分结束；可继续记录撤离结果。" : "每翻一个格子消耗 1 次；挖雷次数为 0 或负数时不能继续翻格。";
   els.baseValue.textContent = Math.round(state.base).toLocaleString("zh-CN");
   if (state.pendingTask) {
     const taskItem = mineType(state.pendingTask.mineType);
@@ -296,7 +298,7 @@ function renderStatus() {
   const ready = mineDone() && baseDone() && !state.settled;
   els.settleBtn.disabled = !ready;
   els.settleBtn.textContent = state.settled ? "本局已结单" : ready ? "正式结单" : "结单条件未达成";
-  els.mineCondition.textContent = mineDone() ? "扫雷已达成" : `扫雷未达成 ${found}/${totalMineTarget()}`;
+  els.mineCondition.textContent = mineDone() ? "普通雷已找齐" : `普通雷未达成 ${found}/${normalTarget()}`;
   els.baseCondition.textContent = baseDone() ? "保底已达成" : `保底未达成 ${state.base}W`;
   els.mineCondition.classList.toggle("done", mineDone());
   els.baseCondition.classList.toggle("done", baseDone());
@@ -380,6 +382,7 @@ function replaceOrdinaryMineWithPepper() {
   if (!candidates.length) return null;
   const target = candidates[Math.floor(Math.random() * candidates.length)];
   target.type = "pepper";
+  target.normalCredit = true;
   return cellName(target.index);
 }
 
@@ -423,11 +426,13 @@ function resolveTask(success) {
 
 function openCell(index) {
   if (state.phase !== "play" || state.settled || isOpen(index)) return;
+  if (mineDone()) { setMessage("已找到全部普通雷，挖雷部分已经结束。", "success"); renderAll(); return; }
+  if (state.digs <= 0) { setMessage("当前挖雷次数为 0 或负数，不能继续翻格。", "error"); renderAll(); return; }
   const candidate = mineAt(index);
   if (state.pendingTask && candidate && isTaskMine(candidate.type)) { showTaskDialog(state.pendingTask); setMessage("请先完成当前待判定任务，再翻开下一张任务雷。", "error"); return; }
   pushHistory(); state.digs -= 1; state.opened.push(index);
   const mine = candidate;
-  if (mine) { const effect = applyMineEffect(mine, index); if (isTaskMine(mine.type)) state.pendingTask = { mineType: mine.type, index }; addEvent(`翻开 ${cellName(index)}：找到${mineType(mine.type).name}，${effect}`, true, false); setMessage(mineDone() ? "已找到全部地雷，扫雷条件达成！" : `找到${mineType(mine.type).name}，还剩 ${Math.max(0, state.mines.length - foundMines())} 颗。`, "success"); }
+  if (mine) { const effect = applyMineEffect(mine, index); if (isTaskMine(mine.type)) state.pendingTask = { mineType: mine.type, index }; addEvent(`翻开 ${cellName(index)}：找到${mineType(mine.type).name}，${effect}`, true, false); setMessage(mineDone() ? "已找到全部普通雷，挖雷部分结束！" : `找到${mineType(mine.type).name}，还剩 ${Math.max(0, normalTarget() - normalFoundMines())} 颗普通雷。`, "success"); }
   else { addEvent(`翻开 ${cellName(index)}：安全格`, false, false); setMessage(`该格安全，当前挖雷次数 ${state.digs}。`); }
   renderAll(); if (state.pendingTask) showTaskDialog(state.pendingTask); scheduleSave("翻开棋盘格", "cell_open");
 }
@@ -450,8 +455,8 @@ function clearOrRedeploy() {
 }
 
 function resetGame() { state.phase = "setup"; state.opened = []; state.pendingTask = null; state.digs = 0; state.base = spec().base; state.selectedMine = "normal"; state.lootSelections = []; state.settled = false; state.events = []; state.history = []; autoDeployBoard(); addEvent(`新一局开始：${spec().size}×${spec().size} / 自动部署${totalMineTarget()}雷`, true, false); setMessage(`已自动部署 ${totalMineTarget()} 个雷，可拖动交换位置。`, "success"); closeDialog(); renderAll(); scheduleSave("重开并自动部署扫雷游戏", "game_reset"); }
-function settleGame() { if (!mineDone() || !baseDone() || state.settled) return; showDialog(`<div class="dialog-body"><h2 id="dialogTitle">确认正式结单？</h2><p>全部 ${totalMineTarget()} 颗地雷（普通 ${normalTarget()} + 特殊 ${specialTarget()}）已经找到，基础保底为 ${state.base}W。结单后本局锁定。</p><div class="result-value">通关</div><div class="dialog-actions"><button class="primary-button" data-action="confirm-settle" type="button">确认结单</button><button class="secondary-button" data-action="close" type="button">暂不结单</button></div></div>`); }
-function confirmSettle() { pushHistory(); state.settled = true; state.phase = "settled"; addEvent(`正式结单：找到全部地雷，基础保底 ${state.base}W`, true, false); closeDialog(); setMessage("本局已正式结单。", "success"); renderAll(); scheduleSave("正式结单", "game_settle"); }
+function settleGame() { if (!mineDone() || !baseDone() || state.settled) return; showDialog(`<div class="dialog-body"><h2 id="dialogTitle">确认正式结单？</h2><p>4 颗普通雷已经找到，挖雷部分结束；基础保底为 ${state.base}W。结单后本局锁定。</p><div class="result-value">通关</div><div class="dialog-actions"><button class="primary-button" data-action="confirm-settle" type="button">确认结单</button><button class="secondary-button" data-action="close" type="button">暂不结单</button></div></div>`); }
+function confirmSettle() { pushHistory(); state.settled = true; state.phase = "settled"; addEvent(`正式结单：找到全部普通雷，基础保底 ${state.base}W`, true, false); closeDialog(); setMessage("本局已正式结单。", "success"); renderAll(); scheduleSave("正式结单", "game_settle"); }
 function undo() { if (!state.history.length || state.settled) return; const previous = state.history.pop(); restoreSnapshot(previous); addEvent("撤回上一步操作", false, false); setMessage("已撤回上一步操作。"); renderAll(); scheduleSave("撤回操作", "undo"); }
 
 function serializableState() { return { version: 5, game: "minesweeper-battle", spec: state.spec, phase: state.phase, selectedMine: state.selectedMine, mines: state.mines, opened: state.opened, pendingTask: state.pendingTask, digs: state.digs, base: state.base, lootSelections: state.lootSelections, settled: state.settled, events: state.events, history: state.history.slice(-30) }; }
@@ -459,8 +464,8 @@ function applyState(next) {
   if (Number(next.version) !== 5) return false;
   const index = Math.max(0, Math.min(SPECS.length - 1, Number(next.spec) || 0)); const max = SPECS[index].size ** 2;
   if (!Array.isArray(next.mines)) return false;
-  const mines = next.mines.map((mine) => typeof mine === "number" ? { index: mine, type: "normal" } : { index: Number(mine.index), type: mineType(mine.type).key }).filter((mine) => Number.isInteger(mine.index) && mine.index >= 0 && mine.index < max);
-  state.spec = index; state.phase = ["setup", "play", "settled"].includes(next.phase) ? next.phase : "setup"; state.selectedMine = mineType(next.selectedMine).key; state.mines = mines.filter((mine, position, list) => list.findIndex((item) => item.index === mine.index) === position); state.opened = Array.isArray(next.opened) ? [...new Set(next.opened.filter((cell) => Number.isInteger(cell) && cell >= 0 && cell < max))] : []; state.pendingTask = next.pendingTask && isTaskMine(next.pendingTask.mineType) && Number.isInteger(Number(next.pendingTask.index)) ? { mineType: next.pendingTask.mineType, index: Number(next.pendingTask.index) } : null; state.digs = Number.isFinite(Number(next.digs)) ? Number(next.digs) : 0; state.base = Number.isFinite(Number(next.base)) ? Number(next.base) : SPECS[index].base; state.lootSelections = Array.isArray(next.lootSelections) ? next.lootSelections.filter((key) => LOOT_OPTIONS.some((item) => item.key === key)) : []; state.settled = Boolean(next.settled); state.events = Array.isArray(next.events) ? next.events.slice(0, 80) : []; state.history = Array.isArray(next.history) ? next.history.slice(-30) : []; return true;
+  const mines = next.mines.map((mine) => typeof mine === "number" ? { index: mine, type: "normal", normalCredit: false } : { index: Number(mine.index), type: mineType(mine.type).key, normalCredit: Boolean(mine.normalCredit) }).filter((mine) => Number.isInteger(mine.index) && mine.index >= 0 && mine.index < max);
+  state.spec = index; state.phase = ["setup", "play", "settled"].includes(next.phase) ? next.phase : "setup"; state.selectedMine = mineType(next.selectedMine).key; state.mines = mines.map((mine) => ({ ...mine, normalCredit: Boolean(mine.normalCredit) })).filter((mine, position, list) => list.findIndex((item) => item.index === mine.index) === position); state.opened = Array.isArray(next.opened) ? [...new Set(next.opened.filter((cell) => Number.isInteger(cell) && cell >= 0 && cell < max))] : []; state.pendingTask = next.pendingTask && isTaskMine(next.pendingTask.mineType) && Number.isInteger(Number(next.pendingTask.index)) ? { mineType: next.pendingTask.mineType, index: Number(next.pendingTask.index) } : null; state.digs = Number.isFinite(Number(next.digs)) ? Number(next.digs) : 0; state.base = Number.isFinite(Number(next.base)) ? Number(next.base) : SPECS[index].base; state.lootSelections = Array.isArray(next.lootSelections) ? next.lootSelections.filter((key) => LOOT_OPTIONS.some((item) => item.key === key)) : []; state.settled = Boolean(next.settled); state.events = Array.isArray(next.events) ? next.events.slice(0, 80) : []; state.history = Array.isArray(next.history) ? next.history.slice(-30) : []; return true;
 }
 function persistLocal() { if (!roomCode) try { localStorage.setItem(STORAGE_KEY, JSON.stringify(serializableState())); } catch (_) {} }
 function restoreLocal() { if (roomCode) return false; try { const raw = localStorage.getItem(STORAGE_KEY); const saved = JSON.parse(raw || "null"); return Boolean(saved && applyState(saved)); } catch (_) { return false; } }
@@ -473,7 +478,7 @@ async function saveRoom(message, eventType) { try { const response = await fetch
 
 function showDialog(html) { els.dialogContent.innerHTML = html; els.dialogBackdrop.hidden = false; document.body.style.overflow = "hidden"; requestAnimationFrame(() => els.dialogContent.querySelector("button")?.focus()); }
 function closeDialog() { els.dialogBackdrop.hidden = true; document.body.style.overflow = ""; }
-function showHelp() { showDialog(`<div class="dialog-body"><h2 id="dialogTitle">三角洲扫雷作战规则</h2><p>开局会自动部署全部地雷，老板只需要调整位置并确认布局。</p><ol><li>4×4 棋盘固定放入：普通雷 4、向日葵 2、阴阳向日葵 2、排雷豌豆 1、窝瓜雷 3、土豆雷 1、辣椒雷 2、爆裂菜问 1，共 16 个。</li><li>部署阶段可拖动任意两格交换位置；手机或不方便拖动时，可依次点击两格交换。</li><li>确认布局后所有雷型隐藏，进入翻格阶段；不设置旗子、不显示数字提示。</li><li>窝瓜雷、土豆雷、辣椒雷翻出后记录为待判定任务；失败额外扣 1 次挖雷。</li><li>阴阳向日葵增加 500W 保底，向日葵增加 200W；排雷豌豆自动翻开 1 个普通雷，爆裂菜问随机把 1 个未翻开的普通雷替换成辣椒雷。</li><li>高价值物资支持多选；挖雷次数可以变成负数。</li></ol><div class="dialog-actions"><button class="primary-button" data-action="close" type="button">知道了</button></div></div>`); }
+function showHelp() { showDialog(`<div class="dialog-body"><h2 id="dialogTitle">三角洲扫雷作战规则</h2><p>开局会自动部署全部地雷，老板只需要调整位置并确认布局。</p><ol><li>4×4 棋盘固定放入：普通雷 4、向日葵 2、阴阳向日葵 2、排雷豌豆 1、窝瓜雷 3、土豆雷 1、辣椒雷 2、爆裂菜问 1，共 16 个。</li><li>部署阶段可拖动任意两格交换位置；手机或不方便拖动时，可依次点击两格交换。</li><li>确认布局后所有雷型隐藏，进入翻格阶段；不设置旗子、不显示数字提示。</li><li>挖雷次数为 0 或负数时不能继续翻格；找到 4 颗普通雷后挖雷部分结束。</li><li>窝瓜雷、土豆雷、辣椒雷翻出后记录为待判定任务；失败额外扣 1 次挖雷。</li><li>阴阳向日葵增加 500W 保底，向日葵增加 200W；排雷豌豆自动翻开 1 个普通雷，爆裂菜问随机把 1 个未翻开的普通雷替换成辣椒雷。</li><li>高价值物资支持多选；挖雷结束后仍可继续记录撤离结果并进行结单。</li></ol><div class="dialog-actions"><button class="primary-button" data-action="close" type="button">知道了</button></div></div>`); }
 
 els.specList.addEventListener("click", (event) => { const button = event.target.closest("[data-spec]"); if (button) chooseSpec(Number(button.dataset.spec)); });
 els.mineBoard.addEventListener("click", (event) => { const button = event.target.closest("[data-index]"); if (!button) return; const index = Number(button.dataset.index); state.phase === "setup" ? selectOrSwapMine(index) : openCell(index); });
