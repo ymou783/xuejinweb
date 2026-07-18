@@ -4,6 +4,7 @@
   "private": true,
   "description": "雪烬电竞门户与游戏后端",
   "scripts": {
+    "build": "node -e \"process.exit(0)\"",
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
     "check": "node --check server/index.js && node --check server/db.js && node --check server/routes.js"
