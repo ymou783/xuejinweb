@@ -237,7 +237,10 @@ function renderLootOptions() {
 
 function renderBoard() {
   const item = spec();
-  const cellSize = item.size === 4 ? "clamp(72px, 7vw, 96px)" : item.size === 6 ? "clamp(54px, 5vw, 72px)" : "clamp(40px, 4vw, 58px)";
+  const compact = window.matchMedia("(max-width: 800px)").matches;
+  const cellSize = compact
+    ? item.size === 4 ? "clamp(64px, 20vw, 112px)" : item.size === 6 ? "clamp(44px, 13vw, 74px)" : "clamp(32px, 9.6vw, 56px)"
+    : item.size === 4 ? "clamp(104px, 8.8vw, 126px)" : item.size === 6 ? "clamp(64px, 5.8vw, 84px)" : "clamp(46px, 4.4vw, 64px)";
   els.mineBoard.style.setProperty("--size", item.size);
   els.boardFrame.style.setProperty("--size", item.size);
   els.boardFrame.style.setProperty("--cell", cellSize);
