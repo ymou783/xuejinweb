@@ -5,14 +5,14 @@ const SPECS = [
 ];
 
 const MINE_TYPES = [
-  { key: "normal", name: "普通雷", asset: "normal", limit: "board", effect: "基础预埋雷，找到计 1 颗" },
-  { key: "wogua", name: "窝瓜雷", asset: "wogua", limit: 3, effect: "触发后额外消耗 1 次挖雷" },
-  { key: "yinYang", name: "阴阳向日葵", asset: "yin-yang", limit: 2, effect: "触发后保底增加 200W" },
-  { key: "potato", name: "土豆雷", asset: "potato", limit: 2, effect: "触发后额外消耗 1 次挖雷" },
-  { key: "sunflower", name: "向日葵", asset: "sunflower", limit: 2, effect: "触发后保底增加 200W" },
-  { key: "pea", name: "排雷豌豆", asset: "pea-sweeper", limit: 2, effect: "触发后自动翻开一格安全格" },
-  { key: "pepper", name: "辣椒雷", asset: "pepper", limit: 1, effect: "触发后自动翻开同列一格" },
-  { key: "burst", name: "爆裂菜问", asset: "burst-cabbage", limit: 1, effect: "触发后公开剩余地雷" }
+  { key: "normal", name: "普通雷", asset: "normal", limit: "board", summary: "基础预埋雷", detail: "按棋盘的普通雷数量部署。翻到后计入找到雷数，全部地雷找到即可完成扫雷条件。", effect: "翻到：找到 1 颗地雷" },
+  { key: "wogua", name: "窝瓜雷", asset: "wogua", limit: 3, summary: "惩罚型任务雷", detail: "翻到后会额外消耗 1 次挖雷次数，适合放在需要控制次数的挑战局。", effect: "触发后额外消耗 1 次挖雷" },
+  { key: "yinYang", name: "阴阳向日葵", asset: "yin-yang", limit: 2, summary: "保底增益雷", detail: "翻到后立即增加当前基础保底 200W，和向日葵的增益效果相同。", effect: "触发后保底增加 200W" },
+  { key: "potato", name: "土豆雷", asset: "potato", limit: 2, summary: "惩罚型任务雷", detail: "翻到后会额外消耗 1 次挖雷次数，触发结果会写入事件记录。", effect: "触发后额外消耗 1 次挖雷" },
+  { key: "sunflower", name: "向日葵", asset: "sunflower", limit: 2, summary: "保底增益雷", detail: "翻到后立即增加当前基础保底 200W，适合用来抬高本局保底。", effect: "触发后保底增加 200W" },
+  { key: "pea", name: "排雷豌豆", asset: "pea-sweeper", limit: 2, summary: "自动排雷雷", detail: "翻到后会从后续格子中自动翻开一格安全格，帮助扩大探索范围。", effect: "触发后自动翻开一格安全格" },
+  { key: "pepper", name: "辣椒雷", asset: "pepper", limit: 1, summary: "同列联动雷", detail: "翻到后会沿当前格子的同列自动翻开一格安全格。", effect: "触发后自动翻开同列一格" },
+  { key: "burst", name: "爆裂菜问", asset: "burst-cabbage", limit: 1, summary: "全图揭示雷", detail: "翻到后公开剩余未翻开的地雷位置，用于快速确认整张雷区。", effect: "触发后公开剩余地雷" }
 ];
 
 const LOOT_OPTIONS = [
@@ -163,7 +163,7 @@ function renderMineTypes() {
 }
 
 function renderLegend() {
-  els.mineLegend.innerHTML = MINE_TYPES.map((item) => `<div class="legend-item"><i class="mine-icon card-${item.asset}" aria-hidden="true"></i><strong>${item.name}</strong><small>${item.effect}</small></div>`).join("");
+  els.mineLegend.innerHTML = MINE_TYPES.map((item, index) => `<article class="legend-item"><div class="legend-art"><i class="mine-icon card-${item.asset}" aria-hidden="true"></i><span>0${index + 1}</span></div><div class="legend-copy"><strong>${item.name}</strong><b>${item.summary}</b><p>${item.detail}</p><small>${item.effect}</small></div></article>`).join("");
 }
 
 function renderLootOptions() {
