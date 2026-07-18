@@ -4,6 +4,27 @@ const SPECS = [
   { size: 8, mines: 26, price: 4888, base: 15888 }
 ];
 
+const FOUR_BY_FOUR_LOADOUT = {
+  normal: 4,
+  sunflower: 2,
+  yinYang: 2,
+  pea: 1,
+  wogua: 3,
+  potato: 1,
+  pepper: 2,
+  burst: 1
+};
+
+const SPECIAL_LOADOUT_WEIGHTS = {
+  sunflower: 2,
+  yinYang: 2,
+  pea: 1,
+  wogua: 3,
+  potato: 1,
+  pepper: 2,
+  burst: 1
+};
+
 const MINE_TYPES = [
   { key: "normal", name: "普通雷", asset: "normal", limit: "board", summary: "基础预埋雷", detail: "普通地雷，全部地雷挖完后完成扫雷条件。", effect: "翻到：找到 1 颗地雷" },
   { key: "wogua", name: "窝瓜雷", asset: "wogua", limit: 3, summary: "任务判定雷", task: "下一局打手击杀总和 > 6 人", detail: "翻到后确认“打手击杀总和 > 6 人”是否完成。成功不扣额外次数，失败扣 1 次挖雷。", effect: "翻到：选择任务成功或失败" },
@@ -22,16 +43,18 @@ const LOOT_OPTIONS = [
   { key: "revive", label: "复苏呼吸机", detail: "带出 +3 次", digs: 3 }
 ];
 
-const STORAGE_KEY = "xuejin-minesweeper-deploy-v4";
+const STORAGE_KEY = "xuejin-minesweeper-deploy-v5";
 let roomCode = new URLSearchParams(location.search).get("room")?.trim().toUpperCase() || "";
 let roomRevision = -1;
 let sessionId = "";
 let saveTimer = null;
 let pollTimer = null;
 let isApplyingRemote = false;
+let swapSource = null;
+let dragSource = null;
 
 const state = {
-  version: 4,
+  version: 5,
   game: "minesweeper-battle",
   spec: 0,
   phase: "setup",
@@ -100,11 +123,25 @@ const els = {
 function spec() { return SPECS[state.spec] || SPECS[0]; }
 function mineType(key) { return MINE_TYPES.find((item) => item.key === key) || MINE_TYPES[0]; }
 function isTaskMine(key) { return ["wogua", "potato", "pepper"].includes(key); }
+function scaledSpecialLoadout(total) {
+  const entries = Object.entries(SPECIAL_LOADOUT_WEIGHTS);
+  const weightTotal = entries.reduce((sum, [, weight]) => sum + weight, 0);
+  const result = Object.fromEntries(entries.map(([key, weight]) => [key, Math.floor(total * weight / weightTotal)]));
+  let remaining = total - Object.values(result).reduce((sum, count) => sum + count, 0);
+  entries
+    .map(([key, weight], order) => ({ key, order, fraction: total * weight / weightTotal - result[key] }))
+    .sort((a, b) => b.fraction - a.fraction || a.order - b.order)
+    .forEach((entry) => { if (remaining > 0) { result[entry.key] += 1; remaining -= 1; } });
+  return result;
+}
+function loadoutForSpec(item = spec()) { return item.size === 4 ? { ...FOUR_BY_FOUR_LOADOUT } : { normal: item.mines, ...scaledSpecialLoadout(item.mines) }; }
+function loadout() { return loadoutForSpec(spec()); }
+function targetCount(key, item = spec()) { return loadoutForSpec(item)[key] || 0; }
 function mineAt(index) { return state.mines.find((mine) => mine.index === index) || null; }
 function isOpen(index) { return state.opened.includes(index); }
 function foundMines() { return state.opened.filter((index) => mineAt(index)).length; }
-function normalTarget() { return spec().mines; }
-function specialTarget() { return spec().mines; }
+function normalTarget() { return targetCount("normal"); }
+function specialTarget() { return Object.entries(loadout()).filter(([key]) => key !== "normal").reduce((sum, [, count]) => sum + count, 0); }
 function totalMineTarget() { return normalTarget() + specialTarget(); }
 function normalCount() { return mineCount("normal"); }
 function specialCount() { return state.mines.length - normalCount(); }
@@ -117,7 +154,8 @@ function amountDigs(amount) { if (amount >= 1500) return 4; if (amount >= 1300) 
 function selectedLoot() { return LOOT_OPTIONS.filter((item) => state.lootSelections.includes(item.key)); }
 function lootDigs() { return selectedLoot().reduce((sum, item) => sum + item.digs, 0); }
 function mineCount(key) { return state.mines.filter((mine) => mine.type === key).length; }
-function mineLimit(item) { return item.limit === "board" ? normalTarget() : specialTarget(); }
+function mineLimit(item) { return targetCount(item.key); }
+function layoutMatchesTarget() { return state.mines.length === totalMineTarget() && MINE_TYPES.every((item) => mineCount(item.key) === targetCount(item.key)); }
 
 function previewCalculation() {
   const amount = Math.max(0, Number(els.withdrawInput.value) || 0);
@@ -146,22 +184,45 @@ function miniMinePositions(size, count) {
   return picks;
 }
 
+function shuffled(values) {
+  const result = [...values];
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+  }
+  return result;
+}
+
+function createAutomaticMines(item = spec()) {
+  const target = loadoutForSpec(item);
+  const types = shuffled(MINE_TYPES.flatMap((mine) => Array.from({ length: target[mine.key] || 0 }, () => mine.key)));
+  const positions = shuffled(Array.from({ length: item.size ** 2 }, (_, index) => index)).slice(0, types.length);
+  return types.map((type, order) => ({ index: positions[order], type }));
+}
+
+function autoDeployBoard() {
+  state.mines = createAutomaticMines();
+  state.opened = [];
+  swapSource = null;
+  dragSource = null;
+}
+
 function renderSpecs() {
   els.specList.innerHTML = SPECS.map((item, index) => {
-    const miniMines = miniMinePositions(item.size, item.mines);
+    const itemLoadout = loadoutForSpec(item);
+    const itemNormal = itemLoadout.normal;
+    const itemSpecial = Object.entries(itemLoadout).filter(([key]) => key !== "normal").reduce((sum, [, count]) => sum + count, 0);
+    const miniMines = miniMinePositions(item.size, itemNormal + itemSpecial);
     const mini = Array.from({ length: item.size ** 2 }, (_, cell) => `<i class="${miniMines.has(cell) ? "mine" : ""}"></i>`).join("");
-    return `<button class="spec-card ${state.spec === index ? "active" : ""}" type="button" data-spec="${index}" ${state.phase !== "setup" || state.mines.length ? "disabled" : ""}><span class="spec-preview" style="--mini-size:${item.size}">${mini}</span><span class="spec-copy"><strong><b>${item.size}×${item.size}</b> / 普通${item.mines}+特殊${item.mines}</strong><span>${item.price}R</span><small>基础保底 <b>${item.base}W</b></small></span></button>`;
+    return `<button class="spec-card ${state.spec === index ? "active" : ""}" type="button" data-spec="${index}" ${state.phase !== "setup" ? "disabled" : ""}><span class="spec-preview" style="--mini-size:${item.size}">${mini}</span><span class="spec-copy"><strong><b>${item.size}×${item.size}</b> / 普通${itemNormal}+其他${itemSpecial}</strong><span>${item.price}R</span><small>基础保底 <b>${item.base}W</b></small></span></button>`;
   }).join("");
 }
 
 function renderMineTypes() {
   els.mineTypeList.innerHTML = MINE_TYPES.map((item) => {
     const count = mineCount(item.key);
-    const limit = mineLimit(item);
-    const stock = item.limit === "board" ? `${count}/${limit}` : `${Math.max(0, specialTarget() - specialCount())}/${specialTarget()}`;
-    const stockLabel = item.limit === "board" ? "已埋" : "特殊可用";
-    const exhausted = item.limit === "board" ? count >= limit : specialCount() >= specialTarget();
-    return `<button class="mine-type-card ${state.selectedMine === item.key ? "selected" : ""} ${exhausted ? "exhausted" : ""}" type="button" data-mine-type="${item.key}" ${state.phase !== "setup" ? "disabled" : ""}><i class="mine-icon card-${item.asset}" aria-hidden="true"></i><span class="mine-type-copy"><strong>${item.name}</strong><small>${item.effect}</small></span><span class="mine-stock"><small>${stockLabel}</small><b>${stock}</b></span></button>`;
+    const target = mineLimit(item);
+    return `<article class="mine-type-card fixed-loadout"><i class="mine-icon card-${item.asset}" aria-hidden="true"></i><span class="mine-type-copy"><strong>${item.name}</strong><small>${item.effect}</small></span><span class="mine-stock"><small>固定数量</small><b>${count}/${target}</b></span></article>`;
   }).join("");
 }
 
@@ -189,19 +250,20 @@ function renderBoard() {
     let content = "";
     let label = `${cellName(index)}，未翻开`;
     if (state.phase === "setup") {
-      if (mine) { className += " deployed"; content = `<i class="mine-cell-art card-${mineType(mine.type).asset}" aria-hidden="true"></i>`; label = `${cellName(index)}，已部署${mineType(mine.type).name}`; } else className += " covered";
+      if (mine) { className += ` deployed${swapSource === index ? " swap-selected" : ""}`; content = `<i class="mine-cell-art card-${mineType(mine.type).asset}" aria-hidden="true"></i>`; label = `${cellName(index)}，${mineType(mine.type).name}，可拖动交换位置`; } else className += " covered";
     } else if (open) {
       if (mine) { className += " open mine-found"; content = `<i class="mine-cell-art card-${mineType(mine.type).asset}" aria-hidden="true"></i>`; label = `${cellName(index)}，找到${mineType(mine.type).name}`; } else { className += " open safe"; label = `${cellName(index)}，安全格`; }
     } else className += " covered";
-    return `<button class="${className}" type="button" role="gridcell" data-index="${index}" aria-label="${label}" aria-rowindex="${Math.floor(index / item.size) + 1}" aria-colindex="${index % item.size + 1}" ${state.settled ? "disabled" : ""}>${content}</button>`;
+    const draggable = state.phase === "setup" && mine ? ' draggable="true"' : "";
+    return `<button class="${className}" type="button" role="gridcell" data-index="${index}" aria-label="${label}" aria-rowindex="${Math.floor(index / item.size) + 1}" aria-colindex="${index % item.size + 1}"${draggable} ${state.settled ? "disabled" : ""}>${content}</button>`;
   }).join("");
 }
 
 function renderStatus() {
   const item = spec();
   const found = foundMines();
-  els.missionText.textContent = state.settled ? "本局已结单" : state.phase === "setup" ? `部署普通雷 ${normalCount()}/${normalTarget()} + 特殊雷 ${specialCount()}/${specialTarget()}` : "地图已锁定，按结果翻开格子";
-  els.phaseText.textContent = state.settled ? "已结单" : state.phase === "setup" ? "部署地雷" : "翻开格子";
+  els.missionText.textContent = state.settled ? "本局已结单" : state.phase === "setup" ? `${totalMineTarget()} 个雷已自动部署，拖动调整位置` : "地图已锁定，按结果翻开格子";
+  els.phaseText.textContent = state.settled ? "已结单" : state.phase === "setup" ? "调整布局" : "翻开格子";
   els.deployedCount.textContent = normalCount();
   els.mineTarget.textContent = normalTarget();
   els.specialDeployedCount.textContent = specialCount();
@@ -211,7 +273,7 @@ function renderStatus() {
   els.digCount.textContent = state.digs;
   els.boardKicker.textContent = `${item.size}×${item.size} / ${totalMineTarget()} 雷`;
   els.boardTitle.textContent = state.phase === "setup" ? "部署雷区" : mineDone() ? "全部地雷已找到" : "翻开格子找雷";
-  els.boardHint.textContent = state.phase === "setup" ? `当前选择：${mineType(state.selectedMine).name}；点击格子部署或撤回。` : "每翻一个格子都会消耗 1 次，挖雷次数允许低于 0。";
+  els.boardHint.textContent = state.phase === "setup" ? "地雷已自动部署；拖动任意两格交换位置，也可以依次点击两格完成交换。" : "每翻一个格子都会消耗 1 次，挖雷次数允许低于 0。";
   els.baseValue.textContent = Math.round(state.base).toLocaleString("zh-CN");
   if (state.pendingTask) {
     const taskItem = mineType(state.pendingTask.mineType);
@@ -221,12 +283,11 @@ function renderStatus() {
     els.pendingTaskBtn.hidden = true;
     els.pendingTaskBtn.textContent = "";
   }
-  const remainingNormal = normalTarget() - normalCount();
-  const remainingSpecial = specialTarget() - specialCount();
+  const layoutReady = layoutMatchesTarget();
   els.lockMapBtn.hidden = state.phase !== "setup";
-  els.lockMapBtn.disabled = remainingNormal !== 0 || remainingSpecial !== 0;
-  els.lockMapBtn.textContent = remainingNormal > 0 || remainingSpecial > 0 ? `还需普通 ${Math.max(0, remainingNormal)} + 特殊 ${Math.max(0, remainingSpecial)} 颗` : "保存地图并开始翻格";
-  els.redeployBtn.textContent = state.phase === "setup" ? "清空部署" : "重新部署";
+  els.lockMapBtn.disabled = !layoutReady;
+  els.lockMapBtn.textContent = layoutReady ? "确认布局并开始翻格" : "自动部署数量异常";
+  els.redeployBtn.textContent = state.phase === "setup" ? "重新随机部署" : "重新部署";
   const ready = mineDone() && baseDone() && !state.settled;
   els.settleBtn.disabled = !ready;
   els.settleBtn.textContent = state.settled ? "本局已结单" : ready ? "正式结单" : "结单条件未达成";
@@ -243,30 +304,54 @@ function renderEvents() { els.eventLog.innerHTML = state.events.length ? state.e
 function renderAll() { renderSpecs(); renderMineTypes(); renderLegend(); renderLootOptions(); renderBoard(); renderStatus(); renderEvents(); }
 
 function chooseSpec(index) {
-  if (state.phase !== "setup" || state.mines.length || index === state.spec || !SPECS[index]) return;
-  pushHistory(); state.spec = index; state.base = spec().base; state.opened = []; state.digs = 0; state.selectedMine = "normal";
+  if (state.phase !== "setup" || index === state.spec || !SPECS[index]) return;
+  pushHistory(); state.spec = index; state.base = spec().base; state.opened = []; state.digs = 0; state.selectedMine = "normal"; autoDeployBoard();
   addEvent(`选择规格：${spec().size}×${spec().size} / 普通${normalTarget()}+特殊${specialTarget()}`, true, false);
-  setMessage(`已选择 ${spec().size}×${spec().size}，请部署普通 ${normalTarget()} 颗和特殊 ${specialTarget()} 颗地雷。`); renderAll(); scheduleSave("切换扫雷规格", "spec_change");
+  setMessage(`已自动部署 ${totalMineTarget()} 个雷，可拖动交换位置。`, "success"); renderAll(); scheduleSave("切换扫雷规格并自动部署", "spec_change");
 }
 
-function chooseMineType(key) { if (state.phase !== "setup" || !mineType(key)) return; state.selectedMine = key; setMessage(`已选择 ${mineType(key).name}：${mineType(key).effect}`); renderAll(); }
-
-function toggleMine(index) {
-  if (state.phase !== "setup" || state.settled) return;
-  const existing = mineAt(index);
+function swapMinePositions(sourceIndex, targetIndex, method = "拖动") {
+  if (state.phase !== "setup" || sourceIndex === targetIndex) { swapSource = null; renderBoard(); return; }
+  const sourceMine = mineAt(sourceIndex);
+  const targetMine = mineAt(targetIndex);
+  if (!sourceMine) return;
   pushHistory();
-  if (existing) { state.mines = state.mines.filter((mine) => mine.index !== index); setMessage(`已撤回 ${cellName(index)} 的${mineType(existing.type).name}。`); }
-  else {
-    const selected = mineType(state.selectedMine); const limit = mineLimit(selected); const used = selected.key === "normal" ? normalCount() : specialCount();
-    if (state.mines.length >= totalMineTarget()) { state.history.pop(); setMessage(`本局最多部署普通 ${normalTarget()} + 特殊 ${specialTarget()} 颗地雷，请先撤回一格。`, "error"); return; }
-    if (used >= limit) { state.history.pop(); setMessage(`${selected.name} 所属${selected.key === "normal" ? "普通雷" : "特殊雷"}数量已达到上限，请更换雷型。`, "error"); return; }
-    state.mines.push({ index, type: selected.key }); setMessage(`已在 ${cellName(index)} 部署${selected.name}（普通 ${normalCount()}/${normalTarget()}，特殊 ${specialCount()}/${specialTarget()}）。`);
+  const sourceName = mineType(sourceMine.type).name;
+  if (targetMine) {
+    const targetName = mineType(targetMine.type).name;
+    [sourceMine.type, targetMine.type] = [targetMine.type, sourceMine.type];
+    setMessage(`${method}完成：${cellName(sourceIndex)} 的${sourceName}与 ${cellName(targetIndex)} 的${targetName}已交换。`, "success");
+  } else {
+    sourceMine.index = targetIndex;
+    setMessage(`${method}完成：${sourceName}已移动到 ${cellName(targetIndex)}。`, "success");
   }
-  renderAll(); scheduleSave("调整地雷部署", "mine_deploy");
+  swapSource = null;
+  dragSource = null;
+  addEvent(`${method}调整布局：${cellName(sourceIndex)} → ${cellName(targetIndex)}`, false, false);
+  renderAll();
+  scheduleSave("调整自动部署布局", "mine_swap");
+}
+
+function selectOrSwapMine(index) {
+  if (state.phase !== "setup" || state.settled) return;
+  if (swapSource === null) {
+    if (!mineAt(index)) return;
+    swapSource = index;
+    setMessage(`已选择 ${cellName(index)} 的${mineType(mineAt(index).type).name}，再点击目标格即可交换。`);
+    renderBoard();
+    return;
+  }
+  if (swapSource === index) {
+    swapSource = null;
+    setMessage("已取消位置调整。");
+    renderBoard();
+    return;
+  }
+  swapMinePositions(swapSource, index, "点击");
 }
 
 function lockMap() {
-  if (state.phase !== "setup" || state.mines.length !== totalMineTarget() || normalCount() !== normalTarget() || specialCount() !== specialTarget()) return;
+  if (state.phase !== "setup" || !layoutMatchesTarget()) return;
   pushHistory(); state.phase = "play"; state.opened = []; state.digs = 0;
   addEvent(`地图已保存：普通${normalCount()} + 特殊${specialCount()}，进入翻格阶段`, true, false); setMessage("地图已隐藏。记录撤离结果后，点击格子开始挖雷。", "success"); renderAll(); scheduleSave("保存地图并进入翻格阶段", "map_lock");
 }
@@ -355,38 +440,43 @@ function recordWithdrawal() {
 function recordFailure() { if (state.phase !== "play" || state.settled) return; pushHistory(); state.base += 60; state.digs -= 1; addEvent(`撤离失败：基础保底 +60W，挖雷次数 -1（当前 ${state.digs}）`, true, false); setMessage(`撤离失败：保底 +60W，当前挖雷次数 ${state.digs}。`, "error"); renderAll(); scheduleSave("记录撤离失败", "withdraw_failed"); }
 
 function clearOrRedeploy() {
-  if (state.phase === "setup") { if (!state.mines.length) return; pushHistory(); state.mines = []; setMessage("部署已清空，请重新选择雷型并放置。"); renderAll(); scheduleSave("清空地雷部署", "deploy_clear"); return; }
+  if (state.phase === "setup") { pushHistory(); autoDeployBoard(); setMessage(`已重新随机部署 ${totalMineTarget()} 个雷，可继续拖动调整。`, "success"); addEvent("重新随机部署地雷", false, false); renderAll(); scheduleSave("重新随机部署地雷", "deploy_randomize"); return; }
   showDialog(`<div class="dialog-body"><h2 id="dialogTitle">重新部署地图？</h2><p>棋盘、挖雷次数、保底和日志都会按当前规格重置。</p><div class="dialog-actions"><button class="primary-button" data-action="confirm-reset" type="button">确认重置</button><button class="secondary-button" data-action="close" type="button">取消</button></div></div>`);
 }
 
-function resetGame() { state.phase = "setup"; state.mines = []; state.opened = []; state.pendingTask = null; state.digs = 0; state.base = spec().base; state.selectedMine = "normal"; state.lootSelections = []; state.settled = false; state.events = []; state.history = []; addEvent(`新一局开始：${spec().size}×${spec().size} / 普通${normalTarget()}+特殊${specialTarget()}`, true, false); setMessage(`请部署普通 ${normalTarget()} 颗和特殊 ${specialTarget()} 颗地雷。`); closeDialog(); renderAll(); scheduleSave("重开扫雷游戏", "game_reset"); }
+function resetGame() { state.phase = "setup"; state.opened = []; state.pendingTask = null; state.digs = 0; state.base = spec().base; state.selectedMine = "normal"; state.lootSelections = []; state.settled = false; state.events = []; state.history = []; autoDeployBoard(); addEvent(`新一局开始：${spec().size}×${spec().size} / 自动部署${totalMineTarget()}雷`, true, false); setMessage(`已自动部署 ${totalMineTarget()} 个雷，可拖动交换位置。`, "success"); closeDialog(); renderAll(); scheduleSave("重开并自动部署扫雷游戏", "game_reset"); }
 function settleGame() { if (!mineDone() || !baseDone() || state.settled) return; showDialog(`<div class="dialog-body"><h2 id="dialogTitle">确认正式结单？</h2><p>全部 ${totalMineTarget()} 颗地雷（普通 ${normalTarget()} + 特殊 ${specialTarget()}）已经找到，基础保底为 ${state.base}W。结单后本局锁定。</p><div class="result-value">通关</div><div class="dialog-actions"><button class="primary-button" data-action="confirm-settle" type="button">确认结单</button><button class="secondary-button" data-action="close" type="button">暂不结单</button></div></div>`); }
 function confirmSettle() { pushHistory(); state.settled = true; state.phase = "settled"; addEvent(`正式结单：找到全部地雷，基础保底 ${state.base}W`, true, false); closeDialog(); setMessage("本局已正式结单。", "success"); renderAll(); scheduleSave("正式结单", "game_settle"); }
 function undo() { if (!state.history.length || state.settled) return; const previous = state.history.pop(); restoreSnapshot(previous); addEvent("撤回上一步操作", false, false); setMessage("已撤回上一步操作。"); renderAll(); scheduleSave("撤回操作", "undo"); }
 
-function serializableState() { return { version: 4, game: "minesweeper-battle", spec: state.spec, phase: state.phase, selectedMine: state.selectedMine, mines: state.mines, opened: state.opened, pendingTask: state.pendingTask, digs: state.digs, base: state.base, lootSelections: state.lootSelections, settled: state.settled, events: state.events, history: state.history.slice(-30) }; }
+function serializableState() { return { version: 5, game: "minesweeper-battle", spec: state.spec, phase: state.phase, selectedMine: state.selectedMine, mines: state.mines, opened: state.opened, pendingTask: state.pendingTask, digs: state.digs, base: state.base, lootSelections: state.lootSelections, settled: state.settled, events: state.events, history: state.history.slice(-30) }; }
 function applyState(next) {
+  if (Number(next.version) !== 5) return false;
   const index = Math.max(0, Math.min(SPECS.length - 1, Number(next.spec) || 0)); const max = SPECS[index].size ** 2;
   if (!Array.isArray(next.mines)) return false;
   const mines = next.mines.map((mine) => typeof mine === "number" ? { index: mine, type: "normal" } : { index: Number(mine.index), type: mineType(mine.type).key }).filter((mine) => Number.isInteger(mine.index) && mine.index >= 0 && mine.index < max);
   state.spec = index; state.phase = ["setup", "play", "settled"].includes(next.phase) ? next.phase : "setup"; state.selectedMine = mineType(next.selectedMine).key; state.mines = mines.filter((mine, position, list) => list.findIndex((item) => item.index === mine.index) === position); state.opened = Array.isArray(next.opened) ? [...new Set(next.opened.filter((cell) => Number.isInteger(cell) && cell >= 0 && cell < max))] : []; state.pendingTask = next.pendingTask && isTaskMine(next.pendingTask.mineType) && Number.isInteger(Number(next.pendingTask.index)) ? { mineType: next.pendingTask.mineType, index: Number(next.pendingTask.index) } : null; state.digs = Number.isFinite(Number(next.digs)) ? Number(next.digs) : 0; state.base = Number.isFinite(Number(next.base)) ? Number(next.base) : SPECS[index].base; state.lootSelections = Array.isArray(next.lootSelections) ? next.lootSelections.filter((key) => LOOT_OPTIONS.some((item) => item.key === key)) : []; state.settled = Boolean(next.settled); state.events = Array.isArray(next.events) ? next.events.slice(0, 80) : []; state.history = Array.isArray(next.history) ? next.history.slice(-30) : []; return true;
 }
 function persistLocal() { if (!roomCode) try { localStorage.setItem(STORAGE_KEY, JSON.stringify(serializableState())); } catch (_) {} }
-function restoreLocal() { if (roomCode) return false; try { const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("xuejin-minesweeper-deploy-v2"); const saved = JSON.parse(raw || "null"); return Boolean(saved && applyState(saved)); } catch (_) { return false; } }
+function restoreLocal() { if (roomCode) return false; try { const raw = localStorage.getItem(STORAGE_KEY); const saved = JSON.parse(raw || "null"); return Boolean(saved && applyState(saved)); } catch (_) { return false; } }
 function scheduleSave(message = "更新扫雷数据", eventType = "state_update") { if (isApplyingRemote) return; persistLocal(); clearTimeout(saveTimer); if (roomCode) { els.saveStatus.textContent = "房间同步中..."; els.roomSyncText.textContent = "同步中..."; saveTimer = setTimeout(() => saveRoom(message, eventType), 220); } else if (sessionId) { els.saveStatus.textContent = "保存中..."; saveTimer = setTimeout(saveSession, 260); } }
 async function createSession() { try { const response = await fetch("/api/game-sessions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ gameSlug: "minesweeper-battle", state: serializableState() }) }); if (!response.ok) throw new Error(); const session = await response.json(); sessionId = session.id; els.saveStatus.textContent = "已自动保存"; } catch (_) { els.saveStatus.textContent = "本地自动保存"; } }
 async function saveSession() { try { const response = await fetch(`/api/game-sessions/${sessionId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ state: serializableState() }) }); if (!response.ok) throw new Error(); els.saveStatus.textContent = "已自动保存"; } catch (_) { els.saveStatus.textContent = "本地自动保存"; } }
-async function loadRoom() { if (!roomCode) return false; try { const response = await fetch(`/api/rooms/${encodeURIComponent(roomCode)}`, { headers: { Accept: "application/json" } }); const room = await response.json().catch(() => ({})); if (!response.ok) throw new Error(room.error || "房间不存在"); roomCode = room.code; roomRevision = room.revision; els.roomBar.hidden = false; els.roomCodeText.textContent = room.code; els.roomSyncText.textContent = "已连接"; els.saveStatus.textContent = "房间已连接"; document.title = `${room.gameName} · ${room.code}`; if (!room.state || !applyState(room.state)) { addEvent(`房间 ${room.code} 开始：基础保底 ${state.base}W`, true, false); await saveRoom("初始化三角洲扫雷大作战", "room_init"); } pollTimer = setInterval(pollRoom, 1500); return true; } catch (error) { els.roomBar.hidden = false; els.roomCodeText.textContent = roomCode; els.roomSyncText.textContent = error.message; els.saveStatus.textContent = "房间连接失败"; setMessage(`房间连接失败：${error.message}`, "error"); return false; } }
+async function loadRoom() { if (!roomCode) return false; try { const response = await fetch(`/api/rooms/${encodeURIComponent(roomCode)}`, { headers: { Accept: "application/json" } }); const room = await response.json().catch(() => ({})); if (!response.ok) throw new Error(room.error || "房间不存在"); roomCode = room.code; roomRevision = room.revision; els.roomBar.hidden = false; els.roomCodeText.textContent = room.code; els.roomSyncText.textContent = "已连接"; els.saveStatus.textContent = "房间已连接"; document.title = `${room.gameName} · ${room.code}`; if (!room.state || !applyState(room.state)) { autoDeployBoard(); addEvent(`房间 ${room.code} 开始：已自动部署 ${totalMineTarget()} 个雷`, true, false); await saveRoom("初始化三角洲扫雷大作战", "room_init"); } pollTimer = setInterval(pollRoom, 1500); return true; } catch (error) { els.roomBar.hidden = false; els.roomCodeText.textContent = roomCode; els.roomSyncText.textContent = error.message; els.saveStatus.textContent = "房间连接失败"; setMessage(`房间连接失败：${error.message}`, "error"); return false; } }
 async function pollRoom() { try { const response = await fetch(`/api/rooms/${encodeURIComponent(roomCode)}`, { headers: { Accept: "application/json" } }); if (!response.ok) return; const room = await response.json(); if (room.revision <= roomRevision) { els.roomSyncText.textContent = "已同步"; return; } roomRevision = room.revision; isApplyingRemote = true; applyState(room.state || {}); renderAll(); isApplyingRemote = false; els.roomSyncText.textContent = "收到更新"; } catch (_) { els.roomSyncText.textContent = "同步失败"; } }
 async function saveRoom(message, eventType) { try { const response = await fetch(`/api/rooms/${encodeURIComponent(roomCode)}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ state: serializableState(), eventType, actor: "房间玩家", message, payload: { spec: `${spec().size}x${spec().size}`, base: state.base, digs: state.digs } }) }); if (!response.ok) throw new Error(); const room = await response.json(); roomRevision = room.revision; els.saveStatus.textContent = "房间已保存"; els.roomSyncText.textContent = "已同步"; } catch (_) { els.saveStatus.textContent = "房间保存失败"; els.roomSyncText.textContent = "保存失败"; } }
 
 function showDialog(html) { els.dialogContent.innerHTML = html; els.dialogBackdrop.hidden = false; document.body.style.overflow = "hidden"; requestAnimationFrame(() => els.dialogContent.querySelector("button")?.focus()); }
 function closeDialog() { els.dialogBackdrop.hidden = true; document.body.style.overflow = ""; }
-function showHelp() { showDialog(`<div class="dialog-body"><h2 id="dialogTitle">三角洲扫雷作战规则</h2><p>这是一局老板预埋、玩家翻格的雷区对局。你提供的 8 张卡已经绑定为 8 种雷型。</p><ol><li>选择 4×4、6×6 或 8×8 规格。</li><li>选择普通雷、窝瓜雷、阴阳向日葵、土豆雷、向日葵、排雷豌豆、辣椒雷、爆裂菜问，再点击棋盘部署。</li><li>普通雷按本局预埋数量计算，特殊雷额外部署同等数量，由其余 7 种雷共同分配。</li><li>窝瓜雷、土豆雷、辣椒雷翻出后选择任务成功或失败；失败额外扣 1 次挖雷。</li><li>阴阳向日葵增加 500W 保底，向日葵增加 200W；排雷豌豆自动翻开 1 个普通雷，爆裂菜问随机把 1 个未翻开的普通雷替换成辣椒雷。</li><li>记录撤离结果时，高价值物资支持多选并逐项叠加。</li><li>翻格不设最低次数，挖雷次数可以变成负数；找到全部地雷且保底小于 0 后即可结单。</li></ol><div class="dialog-actions"><button class="primary-button" data-action="close" type="button">知道了</button></div></div>`); }
+function showHelp() { showDialog(`<div class="dialog-body"><h2 id="dialogTitle">三角洲扫雷作战规则</h2><p>开局会自动部署全部地雷，老板只需要调整位置并确认布局。</p><ol><li>4×4 棋盘固定放入：普通雷 4、向日葵 2、阴阳向日葵 2、排雷豌豆 1、窝瓜雷 3、土豆雷 1、辣椒雷 2、爆裂菜问 1，共 16 个。</li><li>部署阶段可拖动任意两格交换位置；手机或不方便拖动时，可依次点击两格交换。</li><li>确认布局后所有雷型隐藏，进入翻格阶段；不设置旗子、不显示数字提示。</li><li>窝瓜雷、土豆雷、辣椒雷翻出后记录为待判定任务；失败额外扣 1 次挖雷。</li><li>阴阳向日葵增加 500W 保底，向日葵增加 200W；排雷豌豆自动翻开 1 个普通雷，爆裂菜问随机把 1 个未翻开的普通雷替换成辣椒雷。</li><li>高价值物资支持多选；挖雷次数可以变成负数。</li></ol><div class="dialog-actions"><button class="primary-button" data-action="close" type="button">知道了</button></div></div>`); }
 
 els.specList.addEventListener("click", (event) => { const button = event.target.closest("[data-spec]"); if (button) chooseSpec(Number(button.dataset.spec)); });
-els.mineTypeList.addEventListener("click", (event) => { const button = event.target.closest("[data-mine-type]"); if (button) chooseMineType(button.dataset.mineType); });
-els.mineBoard.addEventListener("click", (event) => { const button = event.target.closest("[data-index]"); if (!button) return; const index = Number(button.dataset.index); state.phase === "setup" ? toggleMine(index) : openCell(index); });
+els.mineBoard.addEventListener("click", (event) => { const button = event.target.closest("[data-index]"); if (!button) return; const index = Number(button.dataset.index); state.phase === "setup" ? selectOrSwapMine(index) : openCell(index); });
+els.mineBoard.addEventListener("dragstart", (event) => { const button = event.target.closest("[data-index]"); if (!button || state.phase !== "setup" || !mineAt(Number(button.dataset.index))) { event.preventDefault(); return; } dragSource = Number(button.dataset.index); event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", String(dragSource)); button.classList.add("dragging"); });
+els.mineBoard.addEventListener("dragover", (event) => { const button = event.target.closest("[data-index]"); if (!button || state.phase !== "setup" || dragSource === null) return; event.preventDefault(); event.dataTransfer.dropEffect = "move"; els.mineBoard.querySelectorAll(".drop-target").forEach((cell) => cell.classList.remove("drop-target")); button.classList.add("drop-target"); });
+els.mineBoard.addEventListener("dragleave", (event) => { event.target.closest("[data-index]")?.classList.remove("drop-target"); });
+els.mineBoard.addEventListener("drop", (event) => { const button = event.target.closest("[data-index]"); if (!button || state.phase !== "setup") return; event.preventDefault(); const sourceIndex = Number(event.dataTransfer.getData("text/plain") || dragSource); const targetIndex = Number(button.dataset.index); swapMinePositions(sourceIndex, targetIndex, "拖动"); });
+els.mineBoard.addEventListener("dragend", () => { dragSource = null; els.mineBoard.querySelectorAll(".dragging, .drop-target").forEach((cell) => cell.classList.remove("dragging", "drop-target")); });
 els.lockMapBtn.addEventListener("click", lockMap); els.redeployBtn.addEventListener("click", clearOrRedeploy); els.calculatorForm.addEventListener("submit", (event) => { event.preventDefault(); recordWithdrawal(); });
 els.withdrawInput.addEventListener("input", previewCalculation); els.lootOptions.addEventListener("change", () => { state.lootSelections = [...els.lootOptions.querySelectorAll("input[name=loot]:checked")].map((input) => input.value); previewCalculation(); renderStatus(); });
 els.selectAllLoot.addEventListener("change", () => { state.lootSelections = els.selectAllLoot.checked ? LOOT_OPTIONS.map((item) => item.key) : []; renderAll(); });
@@ -395,5 +485,5 @@ els.dialogContent.addEventListener("click", (event) => { const action = event.ta
 els.pendingTaskBtn.addEventListener("click", () => { if (state.pendingTask) showTaskDialog(state.pendingTask); });
 document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeDialog(); }); window.addEventListener("beforeunload", () => { persistLocal(); clearInterval(pollTimer); });
 
-async function initialize() { const roomLoaded = await loadRoom(); if (!roomLoaded) { const restored = restoreLocal(); if (!restored) addEvent(`新一局开始：${spec().size}×${spec().size} / 普通${normalTarget()}+特殊${specialTarget()}`, true, false); await createSession(); } renderAll(); if (!localStorage.getItem(`${STORAGE_KEY}-helped`)) { setTimeout(() => { showHelp(); localStorage.setItem(`${STORAGE_KEY}-helped`, "1"); }, 420); } }
+async function initialize() { const roomLoaded = await loadRoom(); if (!roomLoaded) { const restored = restoreLocal(); if (!restored || (state.phase === "setup" && !layoutMatchesTarget())) { autoDeployBoard(); addEvent(`新一局开始：${spec().size}×${spec().size} / 已自动部署 ${totalMineTarget()} 个雷`, true, false); } await createSession(); } renderAll(); if (!localStorage.getItem(`${STORAGE_KEY}-helped`)) { setTimeout(() => { showHelp(); localStorage.setItem(`${STORAGE_KEY}-helped`, "1"); }, 420); } }
 initialize();

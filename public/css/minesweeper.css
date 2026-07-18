@@ -104,8 +104,8 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
 .mine-type-card:hover, .mine-type-card:focus-visible { transform: translateX(2px); border-color: var(--cyan); outline: none; }
 .mine-type-card.selected { border-color: var(--pink); background: rgba(255, 92, 168, .14); box-shadow: inset 3px 0 0 var(--pink); }
 .mine-type-card.exhausted { opacity: .55; }
-.mine-icon, .mine-cell-art { display: block; width: 42px; height: 42px; background-image: url("../assets/minesweeper/item-sprites.png"); background-size: 400% 200%; background-repeat: no-repeat; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .35)); }
-.mine-cell-art { width: 70%; height: 70%; background-size: 400% 200%; }
+.mine-icon, .mine-cell-art { display: block; width: 42px; height: 42px; background-image: url("../assets/minesweeper/mine-sprites-v2.png"); background-size: 400% 200%; background-repeat: no-repeat; filter: drop-shadow(0 5px 9px rgba(0, 0, 0, .42)); }
+.mine-cell-art { width: 92%; height: 92%; background-size: 400% 200%; }
 .mine-normal { background-position: 0 0; }
 .mine-double { background-position: 33.333% 0; }
 .mine-cross { background-position: 66.666% 0; }
@@ -114,19 +114,21 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
 .mine-stealth { background-position: 33.333% 100%; }
 .mine-timed { background-position: 66.666% 100%; }
 .mine-full { background-position: 100% 100%; }
-.mine-icon.card-normal, .mine-cell-art.card-normal { background-image: url("../assets/minesweeper/cards/normal.png"); background-size: cover; background-position: center; }
-.mine-icon.card-wogua, .mine-cell-art.card-wogua { background-image: url("../assets/minesweeper/cards/wogua.png"); background-size: cover; background-position: center; }
-.mine-icon.card-yin-yang, .mine-cell-art.card-yin-yang { background-image: url("../assets/minesweeper/cards/yin-yang.png"); background-size: cover; background-position: center; }
-.mine-icon.card-potato, .mine-cell-art.card-potato { background-image: url("../assets/minesweeper/cards/potato.png"); background-size: cover; background-position: center; }
-.mine-icon.card-sunflower, .mine-cell-art.card-sunflower { background-image: url("../assets/minesweeper/cards/sunflower.png"); background-size: cover; background-position: center; }
-.mine-icon.card-pea-sweeper, .mine-cell-art.card-pea-sweeper { background-image: url("../assets/minesweeper/cards/pea-sweeper.png"); background-size: cover; background-position: center; }
-.mine-icon.card-pepper, .mine-cell-art.card-pepper { background-image: url("../assets/minesweeper/cards/pepper.png"); background-size: cover; background-position: center; }
-.mine-icon.card-burst-cabbage, .mine-cell-art.card-burst-cabbage { background-image: url("../assets/minesweeper/cards/burst-cabbage.png"); background-size: cover; background-position: center; }
+.mine-icon.card-normal, .mine-cell-art.card-normal { background-position: 0 0; }
+.mine-icon.card-wogua, .mine-cell-art.card-wogua { background-position: 33.333% 0; }
+.mine-icon.card-yin-yang, .mine-cell-art.card-yin-yang { background-position: 66.666% 0; }
+.mine-icon.card-potato, .mine-cell-art.card-potato { background-position: 100% 0; }
+.mine-icon.card-sunflower, .mine-cell-art.card-sunflower { background-position: 0 100%; }
+.mine-icon.card-pea-sweeper, .mine-cell-art.card-pea-sweeper { background-position: 33.333% 100%; }
+.mine-icon.card-pepper, .mine-cell-art.card-pepper { background-position: 66.666% 100%; }
+.mine-icon.card-burst-cabbage, .mine-cell-art.card-burst-cabbage { background-position: 100% 100%; }
 .mine-type-copy strong { display: block; font-size: 16px; }
 .mine-type-copy small { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; line-height: 1.35; }
 .mine-stock { min-width: 48px; color: var(--cyan); font-size: 14px; font-weight: 900; text-align: right; }
 .mine-stock b { font-size: 18px; }
 .mine-type-card.selected .mine-stock { color: var(--yellow); }
+.mine-type-card.fixed-loadout { cursor: default; }
+.mine-type-card.fixed-loadout:hover { transform: none; border-color: rgba(120, 188, 225, .38); }
 .panel-footnote { margin: 12px 16px 16px; padding-top: 11px; border-top: 1px solid rgba(120, 188, 225, .16); color: var(--muted); font-size: 12px; line-height: 1.55; }
 .board-panel { padding-bottom: 16px; }
 .board-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; padding: 19px 22px 12px; }
@@ -141,6 +143,11 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
 .mine-cell:hover:not(:disabled), .mine-cell:focus-visible { transform: translateY(-2px); border-color: var(--cyan); outline: none; }
 .mine-cell.covered { background: linear-gradient(145deg, #537da7, #315b84); }
 .mine-cell.deployed { background: linear-gradient(145deg, #a84577, #612d62); border-color: rgba(255, 135, 198, .72); }
+.mine-cell.deployed[draggable="true"] { cursor: grab; touch-action: none; }
+.mine-cell.deployed[draggable="true"]:active { cursor: grabbing; }
+.mine-cell.swap-selected { transform: translateY(-3px) scale(1.04); border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(255, 216, 91, .22), 0 10px 22px rgba(0, 0, 0, .32); }
+.mine-cell.dragging { opacity: .42; transform: scale(.9); }
+.mine-cell.drop-target { transform: translateY(-4px) scale(1.06); border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(94, 223, 255, .24), 0 0 22px rgba(94, 223, 255, .42); }
 .mine-cell.open.safe { background: linear-gradient(145deg, #173b5f, #122e4d); border-color: rgba(94, 223, 255, .38); }
 .mine-cell.open.mine-found { background: linear-gradient(145deg, #7e2a5d, #3d224b); border-color: var(--pink); box-shadow: inset 0 0 24px rgba(255, 92, 168, .28), 0 0 15px rgba(255, 92, 168, .3); }
 .mine-cell[aria-label*="安全"]::after { content: "SAFE"; color: rgba(168, 217, 243, .48); font-size: 9px; letter-spacing: .12em; }
@@ -157,9 +164,9 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
 .message.error { color: #ffd0d8; border-color: rgba(255, 123, 154, .5); }
 .legend-panel { padding-bottom: 16px; }
 .mine-legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 0 16px 16px; }
-.legend-item { display: grid; grid-template-columns: 100px minmax(0, 1fr); align-items: start; gap: 14px; min-width: 0; min-height: 162px; padding: 12px; border: 1px solid rgba(120, 188, 225, .24); border-radius: 14px; background: linear-gradient(145deg, rgba(19, 66, 98, .8), rgba(7, 33, 58, .72)); text-align: left; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06); }
-.legend-art { position: relative; width: 100px; }
-.legend-art .mine-icon { width: 100px; height: 126px; margin: 0; border: 1px solid rgba(255, 255, 255, .18); border-radius: 9px; background-size: 100% 100%; box-shadow: 0 8px 16px rgba(0, 0, 0, .25); }
+.legend-item { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: start; gap: 14px; min-width: 0; min-height: 162px; padding: 12px; border: 1px solid rgba(120, 188, 225, .24); border-radius: 14px; background: linear-gradient(145deg, rgba(19, 66, 98, .8), rgba(7, 33, 58, .72)); text-align: left; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06); }
+.legend-art { position: relative; width: 112px; }
+.legend-art .mine-icon { width: 112px; height: 112px; margin: 0; border: 1px solid rgba(255, 255, 255, .18); border-radius: 16px; background-color: rgba(5, 25, 46, .72); background-size: 400% 200%; box-shadow: inset 0 0 28px rgba(94, 223, 255, .08), 0 10px 20px rgba(0, 0, 0, .28); }
 .legend-art > span { position: absolute; top: 7px; left: 7px; padding: 2px 6px; border-radius: 5px; color: #fff; background: rgba(3, 20, 37, .78); font-size: 10px; font-weight: 900; letter-spacing: .08em; }
 .legend-copy { min-width: 0; }
 .legend-copy strong { display: block; color: var(--text); font-size: 19px; line-height: 1.15; }
